@@ -535,7 +535,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
       <label class="check"><input type="checkbox" id="suAlerts" checked> Send me a short scam alert when a new trick starts going around</label>
     </div>
     <div id="suStep2" style="display:grid;gap:10px" hidden>
-      <div class="field"><label for="suCode">6-digit code from your email</label><input id="suCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></div>
+      <div class="field"><label for="suCode">6-digit code (only if your email shows one)</label><input id="suCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></div>
       <button type="button" class="linkbtn" id="suBack" style="justify-self:start">Use a different email</button>
     </div>
     <div class="err" id="suErr" role="alert"></div>
@@ -669,10 +669,10 @@ $('#suForm').addEventListener('submit', async e => {
     if (!email){ err.textContent = 'Enter a valid email address.'; return; }
     btn.disabled = true;
     try {
-      const {error} = await sb.auth.signInWithOtp({email: c, options: {shouldCreateUser: true, data: {name, scam_alerts: $('#suAlerts').checked}}});
+      const {error} = await sb.auth.signInWithOtp({email: c, options: {shouldCreateUser: true, emailRedirectTo: location.origin + location.pathname, data: {name, scam_alerts: $('#suAlerts').checked}}});
       if (error) throw error;
       suEmail = c; $('#suCode').value = ''; setStep(2);
-      $('#suWhy').textContent = `We sent a 6-digit code to ${c}. It can take a minute to arrive; check spam too.`;
+      $('#suWhy').textContent = `We've emailed ${c}. Open the sign-in link in that email on this device, or, if the email shows a 6-digit code, enter it below. It can take a minute to arrive; check spam too.`;
       setTimeout(() => $('#suCode').focus(), 50);
     } catch(x){ err.textContent = (x && x.status === 429) ? 'Too many codes asked for. Wait a few minutes and try again.' : 'We couldn\'t send the code. Check the email address and try again.'; }
     finally { btn.disabled = false; }
@@ -685,12 +685,22 @@ async function logout(){
   if (LIVE){ try { await sb.auth.signOut(); } catch(e){} }
   mem.user = null; mem.checks = FREE_CHECKS; save(); renderAcct(); trackerAuthChanged(); toast('Logged out.');
 }
+const cleanAuthHash = () => { if (/access_token|error_description/.test(location.hash)){ try { history.replaceState(null, '', location.pathname); } catch(e){} } };
+function fromSession(session, greet){
+  const u = session && session.user; if (!u || mem.user) return;
+  mem.user = {name: firstName((u.user_metadata && u.user_metadata.name) || (u.email || '').split('@')[0]), contact: u.email};
+  renderAcct(); trackerAuthChanged(); cleanAuthHash();
+  if (dlg.open) closeSignup();
+  if (greet) toast(`Welcome, ${mem.user.name}! You're signed in.`);
+}
 if (LIVE){
-  sb.auth.getSession().then(({data}) => {
-    const u = data && data.session && data.session.user;
-    if (u){ mem.user = {name: firstName((u.user_metadata && u.user_metadata.name) || (u.email || '').split('@')[0]), contact: u.email}; renderAcct(); trackerAuthChanged(); }
-  }).catch(() => {});
-  sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT'){ mem.user = null; renderAcct(); trackerAuthChanged(); } });
+  const fromLink = /access_token/.test(location.hash);
+  if (/error_description/.test(location.hash)){ cleanAuthHash(); setTimeout(() => toast('That sign-in link has expired. Log in again to get a new one.'), 400); }
+  sb.auth.getSession().then(({data}) => fromSession(data && data.session, fromLink)).catch(() => {});
+  sb.auth.onAuthStateChange((ev, session) => {
+    if (ev === 'SIGNED_OUT'){ mem.user = null; renderAcct(); trackerAuthChanged(); }
+    else if (ev === 'SIGNED_IN') fromSession(session, true);
+  });
 }
 renderAcct();
 
