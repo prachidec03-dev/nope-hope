@@ -1,5 +1,5 @@
-window.NH_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: '',
-  siteUrl: 'nopeandhope.com'  // your live address, e.g. 'nopeandhope.in' (shown on shared game scores)
-};
+   window.NH_CONFIG = {
+     supabaseUrl: 'https://rmkrcibqmunpgrgypfkh.supabase.co',
+     supabaseAnonKey: 'PASTE-YOUR-KEY-HERE',
+     siteUrl: 'nopeandhope.com'
+   };
