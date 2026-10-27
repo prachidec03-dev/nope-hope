@@ -1,0 +1,1555 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Nope &amp; Hope helps Indian freshers check if a job offer is a scam, why their CV gets no replies, and track every application.">
+<title>Nope &amp; Hope</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,800,30;1,9..144,600,30&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+/* Layout: two modules behind folder tabs. Module 1 = deep blue panel (safety); Module 2 = orange panel with a ruled notebook sheet marked up in red pen. */
+:root{
+  --page:#F3F5F8; --paper:#FFFFFF; --ink:#1B2233; --muted:#5E6677; --line:#D9DEE7;
+  --pen:#2346A0; --red:#D2382D; --ok:#2C7A4B; --amber:#B0600A;
+  --hl:#FFE45C; --hl-red:#FFCBC4; --hl-amber:#FFE1A3; --hl-grey:#E4E7EE;
+  --lo-soft:#DDF1E4; --mid-soft:#FCEBCB; --hi-soft:#FBE0DC;
+  --rule:#DCE5F3; --margin:#F2AAA4;
+  --blu:#2453C2; --on-blu:#FFFFFF; --blu-soft:#E2EAFA; --blu-ink:#1B3E94;
+  --org:#E2671B; --on-org:#FFFFFF; --org-soft:#FBE6D5; --org-ink:#9A4108;
+  --grn:#16794F; --on-grn:#FFFFFF; --grn-soft:#DDF0E6; --grn-ink:#0F5A3A;
+  --desk:#E8ECF2; --note:#FFE873; --on-note:#2A2300;
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Instrument Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-hand:"Caveat","Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#10141B; --paper:#1B212B; --ink:#E6EAF2; --muted:#9AA3B4; --line:#2C3442;
+  --pen:#93B0FF; --red:#FF7D70; --ok:#6CCB94; --amber:#F2B45B;
+  --hl:rgba(255,228,92,.32); --hl-red:rgba(255,125,112,.3); --hl-amber:rgba(242,180,91,.3); --hl-grey:rgba(255,255,255,.1);
+  --lo-soft:#15301F; --mid-soft:#36290F; --hi-soft:#3A1E1A;
+  --rule:#252D3A; --margin:#6E3B39;
+  --blu:#6E97F0; --on-blu:#0B1530; --blu-soft:#131D33; --blu-ink:#A9C2F7;
+  --org:#F0823A; --on-org:#1E0E02; --org-soft:#2B1A0D; --org-ink:#F7A86E;
+  --grn:#4FC28D; --on-grn:#04190F; --grn-soft:#11271D; --grn-ink:#8FDDB7;
+  --desk:#161B23; --note:#E7CF5A; --on-note:#231D00; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#10141B; --paper:#1B212B; --ink:#E6EAF2; --muted:#9AA3B4; --line:#2C3442;
+  --pen:#93B0FF; --red:#FF7D70; --ok:#6CCB94; --amber:#F2B45B;
+  --hl:rgba(255,228,92,.32); --hl-red:rgba(255,125,112,.3); --hl-amber:rgba(242,180,91,.3); --hl-grey:rgba(255,255,255,.1);
+  --lo-soft:#15301F; --mid-soft:#36290F; --hi-soft:#3A1E1A;
+  --rule:#252D3A; --margin:#6E3B39;
+  --blu:#6E97F0; --on-blu:#0B1530; --blu-soft:#131D33; --blu-ink:#A9C2F7;
+  --org:#F0823A; --on-org:#1E0E02; --org-soft:#2B1A0D; --org-ink:#F7A86E;
+  --grn:#4FC28D; --on-grn:#04190F; --grn-soft:#11271D; --grn-ink:#8FDDB7;
+  --desk:#161B23; --note:#E7CF5A; --on-note:#231D00; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 56px}
+button,textarea,input{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--pen);outline-offset:2px;border-radius:6px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:inline-flex;align-items:baseline;gap:7px;text-decoration:none;color:var(--ink);line-height:1;white-space:nowrap;font-family:"Fraunces","Playfair Display",Georgia,"Times New Roman",serif;font-weight:800;font-variation-settings:"opsz" 144,"SOFT" 30;letter-spacing:-.025em}
+.brand .w1{font-size:clamp(2rem,4.4vw,2.7rem);color:var(--blu)}
+.brand .amp{font-style:italic;font-weight:600;font-size:clamp(1.9rem,4.2vw,2.5rem);color:var(--muted)}
+.brand .w2{font-size:clamp(2rem,4.4vw,2.7rem);color:var(--org)}
+.acct{display:flex;align-items:center;gap:10px;font-size:.92rem}
+.counter{color:var(--muted)}
+.counter b{color:var(--ink)}
+.linkbtn{background:none;border:0;padding:6px 2px;color:var(--pen);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.me{font-family:var(--f-hand);font-size:1.4rem;color:var(--pen);line-height:1}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;padding-block:clamp(24px,5vw,52px) 26px}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,5.6vw,3.9rem);line-height:1.02;letter-spacing:-.03em;margin:0;max-width:15ch;text-wrap:balance}
+.circled{position:relative;white-space:nowrap}
+.circled svg{position:absolute;left:-8%;top:-14%;width:116%;height:132%;pointer-events:none;overflow:visible}
+.circled path{stroke-dasharray:420;stroke-dashoffset:420;animation:draw 1.1s .35s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hero .sub{font-family:var(--f-hand);font-size:clamp(1.5rem,2.6vw,1.9rem);color:var(--pen);margin:10px 0 0}
+.hero p.lead{margin:12px 0 0;max-width:54ch;color:var(--muted);font-size:1.05rem}
+.playlink{display:inline-flex;align-items:center;gap:10px;margin-top:16px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:600;color:var(--ink);text-decoration:none;font-size:.93rem;transition:border-color .15s,transform .15s}
+.playlink:hover{border-color:var(--blu);transform:translateY(-1px)}
+.pl-dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--hi-soft);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px transparent}}
+.fu{display:grid;gap:16px}
+.fu-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;align-items:end}
+.fu-head h3{margin:2px 0 0;font-family:var(--f-display);font-size:1.4rem;letter-spacing:-.015em}
+.fu-head .note{max-width:52ch;margin:0}
+.kicker{font-family:var(--f-hand);font-size:1.35rem;color:var(--org-ink);line-height:1}
+.fu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.fu-grid label{display:grid;gap:5px;font-weight:600;font-size:.88rem}
+.fu-grid label small{font-weight:400;color:var(--muted)}
+.fu-grid input,.fu-grid select{font:inherit;font-weight:400;color:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--page);min-width:0}
+.fu-grid input:focus,.fu-grid select:focus{outline:none;border-color:var(--org)}
+.fu-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.msg{border:1px solid var(--line);border-radius:12px;background:var(--page);padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.msg-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.msg-top b{font-size:.92rem}
+.msg-top small{color:var(--muted);font-size:.78rem}
+.msg pre{margin:0;white-space:pre-wrap;word-break:break-word;font:inherit;font-size:.9rem;line-height:1.55}
+.msg .subj{font-size:.86rem;color:var(--muted)}
+.msg .subj b{color:var(--ink)}
+.count{font-variant-numeric:tabular-nums}
+.count.over{color:var(--red);font-weight:700}
+.sticky{background:var(--note);color:var(--on-note);width:min(250px,100%);padding:18px 18px 16px;transform:rotate(2.5deg);box-shadow:0 2px 0 rgba(0,0,0,.06),0 12px 22px -12px rgba(0,0,0,.35);position:relative}
+.sticky::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;transform:translateX(-50%) rotate(-3deg);background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.05)}
+.sticky b{display:block;font-family:var(--f-display);font-size:2.4rem;line-height:1;letter-spacing:-.02em}
+.sticky span{font-family:var(--f-hand);font-size:1.3rem;line-height:1.15;display:block;margin-top:6px}
+.sticky small{display:block;margin-top:8px;font-size:.75rem;opacity:.75}
+
+/* folder tabs */
+.tabs{display:flex;gap:6px;align-items:flex-end;padding-left:10px}
+.ftab{border:0;cursor:pointer;text-align:left;border-radius:14px 14px 0 0;padding:12px 18px;display:flex;align-items:center;gap:12px;background:var(--line);color:var(--muted);transition:background .2s,color .2s,transform .2s;transform:translateY(4px);min-width:0}
+.ftab:hover{transform:translateY(0);color:var(--ink)}
+.ftab svg{width:24px;height:24px;flex:none}
+.ftab b{display:block;font-family:var(--f-display);font-size:1.15rem;letter-spacing:-.01em;color:inherit;line-height:1.15}
+.ftab small{display:block;font-size:.78rem;opacity:.9}
+.ftab[data-m="1"][aria-selected="true"]{background:var(--blu);color:var(--on-blu);transform:none}
+.ftab[data-m="2"][aria-selected="true"]{background:var(--org);color:var(--on-org);transform:none}
+.panel{border-radius:4px 22px 22px 22px;padding:clamp(16px,3vw,30px);display:grid;gap:20px}
+.panel.m1{background:var(--blu-soft);box-shadow:inset 0 5px 0 var(--blu)}
+.panel.m2{background:var(--org-soft);box-shadow:inset 0 5px 0 var(--org)}
+.ftab[data-m="3"][aria-selected="true"]{background:var(--grn);color:var(--on-grn);transform:none}
+.panel.m3{background:var(--grn-soft);box-shadow:inset 0 5px 0 var(--grn)}
+.m3 .btn.grn{background:var(--grn);color:var(--on-grn)}
+.tstats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.tstat{background:var(--paper);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
+.tstat b{font-family:var(--f-display);font-size:1.7rem;line-height:1;font-variant-numeric:tabular-nums}
+.tstat span{font-size:.8rem;color:var(--muted);font-weight:600}
+.tstat.hot b{color:var(--red)}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.tform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tform label{display:grid;gap:5px;font-weight:600;font-size:.88rem;min-width:0}
+.tform label small{font-weight:400;color:var(--muted)}
+.tform .wide{grid-column:1/-1}
+.tform input,.tform select,.tform textarea,.acard select{font:inherit;font-weight:400;color:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--page);min-width:0;width:100%}
+.tform textarea{min-height:64px;resize:vertical}
+.tform input:focus,.tform select:focus,.tform textarea:focus,.acard select:focus{outline:none;border-color:var(--grn)}
+.agenda{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.agenda li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--page)}
+.agenda .when{display:grid;text-align:center;line-height:1.1;border-radius:8px;padding:6px 4px;background:var(--paper);border:1px solid var(--line)}
+.agenda .when b{font-family:var(--f-display);font-size:1.25rem}
+.agenda .when small{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.agenda .what b{display:block;font-size:.9rem}
+.agenda .what span{font-size:.84rem;color:var(--muted)}
+.agenda li.due .when{background:var(--hi-soft);border-color:transparent}
+.agenda li.due .when small,.agenda li.due .when b{color:var(--red)}
+.agenda li.today .when{background:var(--grn);border-color:transparent}
+.agenda li.today .when small,.agenda li.today .when b{color:var(--on-grn)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--ink)}
+.fchip[aria-pressed="true"]{background:var(--grn);border-color:var(--grn);color:var(--on-grn)}
+.alist{display:grid;gap:12px}
+.acard{background:var(--paper);border-radius:14px;padding:16px;display:grid;gap:12px;border:1px solid var(--line)}
+.ahead{display:flex;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;align-items:start}
+.ahead h4{margin:0;font-family:var(--f-display);font-size:1.15rem;letter-spacing:-.01em;line-height:1.2}
+.ahead .role{color:var(--muted);font-size:.92rem}
+.ahead select{width:auto;max-width:100%;font-weight:600}
+.ameta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted)}
+.ameta b{color:var(--ink);font-weight:600}
+.steps4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.steps4 span{font-size:.74rem;font-weight:700;letter-spacing:.03em;color:var(--muted);border-top:4px solid var(--line);padding-top:5px}
+.steps4 span.on{color:var(--grn-ink);border-color:var(--grn)}
+.endtag{justify-self:start;font-size:.8rem;font-weight:700;border-radius:999px;padding:4px 11px}
+.endtag.good{background:var(--lo-soft);color:var(--ok)} .endtag.bad{background:var(--hi-soft);color:var(--red)} .endtag.grey{background:var(--hl-grey);color:var(--muted)}
+.hint{border-radius:10px;padding:10px 12px;font-size:.88rem;display:grid;gap:8px;background:var(--grn-soft)}
+.hint.warn{background:var(--mid-soft)} .hint.cold{background:var(--hl-grey)}
+.hint .actions{gap:8px}
+.aact{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.aact a,.aact button{background:none;border:0;padding:4px 0;font:inherit;font-size:.86rem;font-weight:600;color:var(--pen);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.aact button.del{color:var(--red)}
+.exbanner{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;background:var(--note);color:var(--on-note);border-radius:10px;padding:10px 14px;font-size:.9rem}
+.exbanner button{background:var(--on-note);color:var(--note);border:0;border-radius:8px;padding:6px 12px;font:inherit;font-weight:600;cursor:pointer}
+.syncnote{font-size:.82rem;color:var(--muted);margin:0}
+@media (max-width:900px){.trow{grid-template-columns:minmax(0,1fr)}.tstats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.ftab svg{display:none}.tabs .ftab{padding:10px 8px;justify-content:center;text-align:center}.tabs .ftab b{font-size:.88rem}.tform{grid-template-columns:minmax(0,1fr)}.tstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.intro{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;align-items:baseline}
+.intro h2{margin:0;font-family:var(--f-display);font-size:clamp(1.5rem,3vw,2.05rem);letter-spacing:-.02em;font-weight:800;line-height:1.1}
+.intro p{margin:0;max-width:50ch}
+.intro p{color:var(--muted)}
+
+/* shared boxes */
+.work{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+.box{background:var(--paper);color:var(--ink);border-radius:16px;padding:18px;display:grid;gap:14px;min-width:0}
+.lab{font-weight:600;font-size:.95rem;display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.lab small{font-weight:400;color:var(--muted);font-size:.82rem}
+textarea{width:100%;min-height:220px;resize:vertical;background:var(--page);border:1px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.5;font-size:.94rem}
+textarea:focus{outline:none;border-color:var(--pen);box-shadow:0 0 0 3px var(--hl-grey)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.qt{font-size:.85rem;color:var(--muted)}
+.qchip{position:relative}
+.qchip input{position:absolute;opacity:0;pointer-events:none}
+.qchip span{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--page);border-radius:999px;padding:6px 12px;font-size:.87rem;cursor:pointer}
+.qchip span::before{content:"";width:13px;height:13px;border-radius:50%;border:1.5px solid var(--muted)}
+.qchip input:checked + span{border-color:var(--blu);background:var(--blu-soft);font-weight:600}
+.qchip input:checked + span::before{background:var(--blu);border-color:var(--blu);box-shadow:inset 0 0 0 2.5px var(--paper)}
+.qchip input:focus-visible + span{outline:2.5px solid var(--pen);outline-offset:2px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn.blu{background:var(--blu);color:var(--on-blu)}
+.btn.org{background:var(--org);color:var(--on-org)}
+.btn.ink{background:var(--ink);color:var(--paper)}
+.btn.line{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.small{padding:8px 13px;font-size:.88rem}
+.note{font-size:.84rem;color:var(--muted)}
+
+/* scam result */
+.res-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 13px;font-weight:700;font-size:.9rem}
+.pill::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.pill.high{background:var(--hi-soft);color:var(--red)} .pill.mid{background:var(--mid-soft);color:var(--amber)} .pill.low{background:var(--lo-soft);color:var(--ok)}
+.ex{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.verdict{font-family:var(--f-display);font-size:1.5rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;margin:0;text-wrap:balance}
+.meter{display:grid;gap:6px}
+.track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--lo-soft) 0 18%,var(--mid-soft) 18% 45%,var(--hi-soft) 45% 100%)}
+.marker{position:absolute;top:50%;width:20px;height:20px;border-radius:50%;background:var(--paper);border:4px solid var(--ink);transform:translate(-50%,-50%);transition:left .9s cubic-bezier(.2,.8,.2,1)}
+.scale{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+.calm{font-family:var(--f-hand);font-size:1.38rem;line-height:1.2;color:var(--pen)}
+.sec{font-weight:700;font-size:.93rem;margin:2px 0 0}
+.marks{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.marks li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.marks svg{width:20px;height:20px;margin-top:2px}
+.marks b{display:block}
+.marks span{color:var(--muted);font-size:.9rem}
+.quote{background:var(--page);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow:auto}
+mark{color:inherit;padding:0 2px;border-radius:3px 7px 4px 8px;background:var(--hl)}
+mark.high{background:var(--hl-red)} mark.mid{background:var(--hl-amber)} mark.low{background:var(--hl-grey)}
+.steps{margin:0;padding-left:22px;display:grid;gap:5px}
+.steps li::marker{font-family:var(--f-hand);font-size:1.15rem;color:var(--pen)}
+.waiting{font-family:var(--f-hand);font-size:1.45rem;color:var(--pen);padding:34px 4px;display:flex;align-items:center;gap:10px}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* module 2 */
+.filter{background:var(--paper);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.filter h3{margin:0;font-family:var(--f-display);font-size:1.15rem;letter-spacing:-.01em}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.flow li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;font-size:.9rem}
+.flow li b{font-family:var(--f-hand);font-size:1.6rem;line-height:1;color:var(--org)}
+.flow + p{margin:0;font-size:.9rem}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.upl{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.upl input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.upbtn{display:inline-flex;align-items:center;gap:8px;border:1.5px dashed var(--org);color:var(--org-ink);background:var(--org-soft);border-radius:10px;padding:8px 13px;font-weight:600;font-size:.88rem;cursor:pointer}
+.upbtn svg{width:18px;height:18px}
+.m1 .upbtn{border-color:var(--blu);color:var(--blu-ink);background:var(--blu-soft)}
+.box.drag{box-shadow:0 0 0 3px var(--blu)}
+.m2 .box.drag{box-shadow:0 0 0 3px var(--org)}
+.nav{display:flex;align-items:center;gap:6px 18px;flex-wrap:wrap}
+.nav a{color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem}
+.nav a:hover{color:var(--red)}
+.right{display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap}
+footer .links{display:flex;flex-wrap:wrap;gap:6px 16px}
+footer .links a{color:var(--ink);text-underline-offset:3px}
+.upl input:focus-visible + .upbtn{outline:2.5px solid var(--pen);outline-offset:2px}
+.fname{font-size:.84rem;color:var(--muted);min-width:0;word-break:break-word}
+.fname.ok{color:var(--ok);font-weight:600}
+.fname.bad{color:var(--red)}
+.or{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.box.drag{box-shadow:0 0 0 3px var(--org)}
+.result2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}
+.sheet{background-color:var(--paper);background-image:linear-gradient(transparent 29px,var(--rule) 30px);background-size:100% 30px;background-position:0 46px;border-radius:4px;padding:46px 18px 24px 60px;position:relative;line-height:30px;font-size:.92rem;box-shadow:0 18px 30px -24px rgba(0,0,0,.6);min-width:0}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:44px;width:2px;background:var(--margin)}
+.sheet .tagline{position:absolute;top:10px;left:60px;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.4}
+.grade{position:absolute;top:6px;right:16px;width:96px;height:80px;display:grid;place-items:center;color:var(--red);font-family:var(--f-hand);text-align:center;line-height:.9;transform:rotate(-6deg)}
+.grade b{font-size:2.7rem;font-weight:700}
+.grade small{display:block;font-size:1.1rem}
+.grade svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) 168px;gap:12px;min-height:30px}
+.ln .tx{word-break:break-word;min-width:0}
+.ln.strike .tx{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px;color:var(--muted)}
+.ln .pen{font-family:var(--f-hand);color:var(--red);font-size:1.22rem;line-height:1.05;padding-top:5px;transform:rotate(-2deg)}
+.ln .pen.blue{color:var(--pen)}
+.wk{text-decoration:underline wavy var(--red);text-underline-offset:4px;text-decoration-thickness:1.5px}
+.hit{background:var(--hl);border-radius:3px 7px 4px 8px;padding:0 2px}
+.side{display:grid;gap:16px;min-width:0}
+.card{background:var(--paper);border-radius:12px;padding:18px;display:grid;gap:12px}
+.card h3{margin:0;font-family:var(--f-display);font-size:1.3rem;letter-spacing:-.015em;line-height:1.15;text-wrap:balance}
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 12px;font-size:.9rem}
+.checklist li{display:flex;gap:7px;align-items:center}
+.checklist svg{width:18px;height:18px;flex:none}
+.checklist li.got{color:var(--muted)}
+.reasons{margin:0;padding-left:22px;display:grid;gap:11px}
+.reasons li::marker{font-family:var(--f-hand);font-size:1.25rem;color:var(--red);font-weight:700}
+.reasons b{display:block}
+.reasons .d{color:var(--muted);font-size:.88rem}
+.reasons .f{font-size:.88rem;margin-top:2px}
+.reasons .f em{font-style:normal;font-weight:700;color:var(--red)}
+.lockwrap{position:relative}
+.lockwrap.locked .lockcontent{filter:blur(5px);user-select:none;pointer-events:none;max-height:240px;overflow:hidden}
+.lockcta{position:absolute;inset:0;display:grid;place-items:center;padding:12px}
+.envelope{background:var(--note);color:var(--on-note);padding:16px 16px 14px;transform:rotate(-1.5deg);display:grid;gap:8px;justify-items:start;max-width:290px;box-shadow:0 12px 22px -12px rgba(0,0,0,.4)}
+.envelope b{font-family:var(--f-hand);font-size:1.45rem;line-height:1.05}
+.envelope span{font-size:.85rem}
+.envelope .btn{background:var(--on-note);color:var(--note)}
+.bul{border-left:3px solid var(--red);padding:4px 0 4px 12px;display:grid;gap:2px}
+.bul .o{color:var(--muted);text-decoration:line-through;font-size:.88rem}
+.bul .n{font-family:var(--f-hand);font-size:1.25rem;line-height:1.15;color:var(--pen)}
+.formula{font-size:.85rem;border:1.5px dashed var(--line);border-radius:8px;padding:9px 12px}
+.pencil{display:grid;place-items:center;gap:10px;padding:40px 10px;text-align:center;background:var(--paper);border-radius:12px}
+.pencil svg{width:120px;height:40px}
+.pencil path{stroke-dasharray:260;stroke-dashoffset:260;animation:draw 1.6s ease-in-out infinite}
+
+/* sign-up dialog */
+dialog{border:0;padding:0;background:transparent;max-width:min(440px,calc(100% - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(16,20,27,.55)}
+.signup{background:var(--paper);border-radius:10px;padding:24px 22px 20px;display:grid;gap:14px;position:relative;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.signup .tape{position:absolute;top:-11px;left:30px;width:84px;height:22px;background:var(--note);opacity:.85;transform:rotate(-4deg)}
+.signup h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.55rem;letter-spacing:-.02em;line-height:1.1}
+.signup p{margin:0;color:var(--muted);font-size:.93rem}
+.field{display:grid;gap:5px}
+.field label{font-weight:600;font-size:.88rem}
+.field input{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--page);font-size:.95rem}
+.field input:focus{outline:none;border-color:var(--pen)}
+.err{color:var(--red);font-size:.84rem;min-height:1.2em}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.86rem;color:var(--muted)}
+.preview{font-size:.78rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+.x{position:absolute;top:10px;right:10px;background:none;border:0;font-size:1.4rem;line-height:1;color:var(--muted);cursor:pointer;padding:6px}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px) rotate(-1deg);background:var(--note);color:var(--on-note);padding:12px 18px;font-family:var(--f-hand);font-size:1.3rem;line-height:1.15;opacity:0;transition:all .25s;pointer-events:none;z-index:30;max-width:calc(100% - 32px);text-align:center;box-shadow:0 12px 22px -12px rgba(0,0,0,.45)}
+.toast.show{opacity:1;transform:translate(-50%,0) rotate(-1deg)}
+.idlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.idlist li{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:.9rem;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--page)}
+.idlist .kind{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.idlist .val{word-break:break-all;min-width:0}
+.badge{border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700;white-space:nowrap}
+.badge.red{background:var(--hi-soft);color:var(--red)} .badge.grey{background:var(--hl-grey);color:var(--muted)}
+.rform{border:1.5px dashed var(--blu);border-radius:12px;padding:14px;display:grid;gap:10px}
+.rchecks{display:grid;gap:6px}
+.rc{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;word-break:break-all}
+.rc input{margin-top:3px;flex:none}
+.rform select,.lookrow input{font:inherit;color:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--page);min-width:0}
+.rform select:focus,.lookrow input:focus{outline:none;border-color:var(--pen)}
+.lookrow{display:flex;gap:8px;flex-wrap:wrap}
+.lookrow input{flex:1 1 220px}
+.repnote{font-size:.8rem;color:var(--muted);margin:0}
+@media (max-width:560px){.idlist li{grid-template-columns:minmax(0,1fr) auto}.idlist .kind{grid-column:1/-1}}
+footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;max-width:80ch}
+
+@media (max-width:900px){.work,.result2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:720px){.hero{grid-template-columns:minmax(0,1fr)}.sticky{justify-self:start}.pair,.flow{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){
+  .tabs{padding-left:0}.ftab{flex:1;padding:10px 12px;gap:8px}.ftab small{display:none}.ftab b{font-size:1rem}
+  .ln{grid-template-columns:minmax(0,1fr)}.ln .pen{padding-top:0;margin-top:-6px;margin-bottom:4px}
+  .sheet{padding-left:46px;padding-right:12px}.sheet::before{left:34px}.sheet .tagline{left:46px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.circled path,.pencil path{stroke-dashoffset:0}}
+</style>
+
+</head><body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="index.html" aria-label="Nope &amp; Hope home"><span class="w1">Nope</span><span class="amp">&amp;</span><span class="w2">Hope</span></a>
+    <div class="right"><nav class="nav" aria-label="Site"><a href="spot.html">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a></nav><div class="acct" id="acct"></div></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Job hunting is <span class="circled">stressful<svg viewBox="0 0 220 80" preserveAspectRatio="none" aria-hidden="true"><path d="M30 14 C 90 -2, 190 4, 212 30 C 228 56, 150 76, 80 74 C 20 72, -4 52, 8 32 C 16 18, 40 10, 70 8" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/></svg></span> enough.</h1>
+      <p class="sub">Nope to fake offers. Hope for real replies.</p>
+      <p class="lead">Paste a job message to see if it's a scam, put your CV next to a job ad to see why recruiters aren't replying, and keep every application on track. Plain answers, no jargon.</p>
+      <a class="playlink" href="spot.html"><span class="pl-dot" aria-hidden="true"></span>Play today's Spot the Scam: 3 messages, 1 minute</a>
+    </div>
+    <aside class="sticky" aria-label="Why this matters">
+      <b>93%</b>
+      <span>of Indian job seekers have run into a recruitment scam.</span>
+      <small>Indeed Hiring Confidence Index, 2026</small>
+    </aside>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Choose a check">
+    <button class="ftab" data-m="1" role="tab" id="tab-check" aria-controls="panel-check" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l8 3.2v6c0 5.2-3.4 8.7-8 10.8-4.6-2.1-8-5.6-8-10.8v-6z"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>
+      <span><b>Is this job real?</b><small>The nope check · free</small></span>
+    </button>
+    <button class="ftab" data-m="2" role="tab" id="tab-diagnose" aria-controls="panel-diagnose" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h9l4 4v15H6z"/><path d="M9 11h7M9 14.5h7M9 18h4"/><path d="M15 2.5v4h4"/></svg>
+      <span><b>Why no replies?</b><small>The hope check · full report free in beta</small></span>
+    </button>
+    <button class="ftab" data-m="3" role="tab" id="tab-track" aria-controls="panel-track" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/><path d="M8 14l2 2 4-4"/></svg>
+      <span><b>My applications</b><small>Tracker · free</small></span>
+    </button>
+  </div>
+
+  <!-- MODULE 1 -->
+  <section class="panel m1" id="panel-check" role="tabpanel" aria-labelledby="tab-check">
+    <div class="intro">
+      <h2>Got a job message that feels off?</h2>
+      <p>Paste it exactly as you got it. We mark every warning sign and tell you what to do next.</p>
+    </div>
+    <div class="work">
+      <div class="box" id="scamBox">
+        <label class="lab" for="scamText">The message, email or offer letter <small>upload it or paste it</small></label>
+        <div class="upl">
+          <input type="file" id="scamFile" accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+          <label class="upbtn" for="scamFile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>Upload offer letter (PDF or Word)</label>
+          <span class="fname" id="scamName">or drop the file here</span>
+        </div>
+        <span class="or">or paste</span>
+        <textarea id="scamText" spellcheck="false" placeholder="Paste the whole message here…"></textarea>
+        <div style="display:grid;gap:8px">
+          <span class="qt">Anything true for you? (optional)</span>
+          <div class="chips">
+            <label class="qchip"><input type="checkbox" id="qApplied"><span>I never applied for this</span></label>
+            <label class="qchip"><input type="checkbox" id="qInterview"><span>No interview happened</span></label>
+            <label class="qchip"><input type="checkbox" id="qPaid"><span>They asked me to pay</span></label>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn blu" id="runScam">Check my message</button>
+          <button class="btn line small" id="nextScam">Try another example</button>
+        </div>
+      </div>
+      <div class="box" id="scamOut" aria-live="polite"></div>
+    </div>
+    <div class="box" id="lookBox">
+      <label class="lab" for="lookIn">Got a call or message from someone? <small>look up a phone number, email, UPI ID or link</small></label>
+      <div class="lookrow"><input id="lookIn" placeholder="Mobile number, email, UPI ID or link" autocomplete="off"><button class="btn blu small" id="lookBtn">Look it up</button></div>
+      <div id="lookOut" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- MODULE 2 -->
+  <section class="panel m2" id="panel-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" hidden>
+    <div class="intro">
+      <h2>Applied 50 times and heard nothing?</h2>
+      <p>It's usually a filter, not a verdict on you. Here's how that filter works, and how to get past it.</p>
+    </div>
+    <div class="filter">
+      <h3>What's "the filter"?</h3>
+      <ol class="flow">
+        <li><b>1</b><span>Many companies put every CV into hiring software, called an <strong>ATS</strong> (applicant tracking system).</span></li>
+        <li><b>2</b><span>The software looks for the skills and words from the job ad, then ranks the CVs.</span></li>
+        <li><b>3</b><span>Recruiters usually open only the CVs near the top, and skim them fast.</span></li>
+      </ol>
+      <p>So if your CV doesn't use the job ad's words, or hides your results, it can be skipped before a person reads it. This check shows you where that's happening.</p>
+    </div>
+    <div class="pair">
+      <div class="box" id="cvBox">
+        <label class="lab" for="cvText">Your CV <small>upload it or paste the text</small></label>
+        <div class="upl">
+          <input type="file" id="cvFile" accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+          <label class="upbtn" for="cvFile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>Upload PDF or Word</label>
+          <span class="fname" id="cvName">or drop the file here</span>
+        </div>
+        <span class="or">or paste</span>
+        <textarea id="cvText" spellcheck="false"></textarea>
+      </div>
+      <div class="box" id="jdBox">
+        <label class="lab" for="jdText">The job ad <small>upload it or paste the text</small></label>
+        <div class="upl">
+          <input type="file" id="jdFile" accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+          <label class="upbtn" for="jdFile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>Upload PDF or Word</label>
+          <span class="fname" id="jdName">or drop the file here</span>
+        </div>
+        <span class="or">or paste</span>
+        <textarea id="jdText" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <p class="note" style="margin:-6px 0 0">Your CV is on Google Drive? Download it to your phone or laptop first, then upload it here. Scanned photos of a CV can't be read yet; use the original PDF or Word file.</p>
+    <div class="actions">
+      <button class="btn org" id="runDiag">Check my CV against this job</button>
+      <span class="note">We compare your CV with the job ad, mark the weak spots in red pen, and give you a score out of 100. An example is loaded.</span>
+    </div>
+    <div id="diagOut" aria-live="polite"></div>
+    <div class="box fu" id="fuBox">
+      <div class="fu-head"><div><span class="kicker">After you apply</span><h3>Follow-up writer</h3></div><p class="note">Most applicants never follow up. A short, polite note 5–7 days after applying can put your CV back in front of the recruiter.</p></div>
+      <div class="fu-grid">
+        <label for="fuRole">Role you applied for<input id="fuRole" autocomplete="off"></label>
+        <label for="fuCompany">Company<input id="fuCompany" autocomplete="organization"></label>
+        <label for="fuRec">Recruiter's first name <small>if you know it</small><input id="fuRec" autocomplete="off" placeholder="e.g. Neha"></label>
+        <label for="fuDays">When did you apply?<select id="fuDays"><option value="5">5 days ago</option><option value="7" selected>About a week ago</option><option value="10">10 days ago</option><option value="14">2 weeks ago</option><option value="21">3 weeks ago</option></select></label>
+        <label for="fuStrength">Your strongest match for this job<input id="fuStrength" autocomplete="off" placeholder="e.g. resume screening and Excel"></label>
+        <label for="fuMe">Your name<input id="fuMe" autocomplete="name"></label>
+      </div>
+      <div class="actions"><button class="btn org" id="fuGo">Write my follow-ups</button><span class="note">Filled in from your CV and the job ad above. Change anything.</span></div>
+      <div id="fuOut" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- MODULE 3 -->
+  <section class="panel m3" id="panel-track" role="tabpanel" aria-labelledby="tab-track" hidden>
+    <div class="intro">
+      <h2>Where have you applied?</h2>
+      <p>Add every application once. We keep the dates, tell you when to follow up, and flag the ones that have gone quiet.</p>
+    </div>
+    <div class="tstats" id="tStats" aria-label="Your applications at a glance"></div>
+    <div class="trow">
+      <div class="box">
+        <div class="lab" style="font-size:1.05rem"><span id="tFormTitle">Add an application</span></div>
+        <form class="tform" id="tForm" novalidate>
+          <label for="tCompany">Company<input id="tCompany" required autocomplete="organization" placeholder="e.g. Kestrel Analytics"></label>
+          <label for="tRole">Role<input id="tRole" required autocomplete="off" placeholder="e.g. Business Analyst"></label>
+          <label class="wide" for="tLink">Job post link <small>so you can check if it's still open</small><input id="tLink" inputmode="url" autocomplete="off" placeholder="Paste the link to the job post"></label>
+          <label for="tApplied">Applied on<input id="tApplied" type="date"></label>
+          <label for="tSource">Applied through<select id="tSource"><option>LinkedIn</option><option>Naukri</option><option>Company website</option><option>Referral</option><option>Campus placement</option><option>Internshala</option><option>Indeed</option><option>Other</option></select></label>
+          <label for="tCloses">Applications close <small>optional</small><input id="tCloses" type="date"></label>
+          <label for="tStatus">Status<select id="tStatus"></select></label>
+          <label class="wide" for="tInterview">Interview date and time <small>if you have one</small><input id="tInterview" type="datetime-local"></label>
+          <label class="wide" for="tNotes">Notes <small>optional</small><textarea id="tNotes" placeholder="Recruiter's name, salary discussed, rounds…"></textarea></label>
+          <div class="wide actions"><button class="btn grn" type="submit" id="tSave">Add to tracker</button><button class="btn line small" type="button" id="tCancel" hidden>Cancel</button><span class="err" id="tErr" role="alert"></span></div>
+        </form>
+      </div>
+      <div class="box">
+        <div class="lab" style="font-size:1.05rem"><span>Coming up</span><small>next 14 days</small></div>
+        <ul class="agenda" id="tAgenda"></ul>
+      </div>
+    </div>
+    <div class="box" style="gap:12px">
+      <div class="lab" style="font-size:1.05rem;align-items:center"><span>Your applications</span><div class="filters" id="tFilters" role="group" aria-label="Filter by status"></div></div>
+      <div id="tEx"></div>
+      <div class="alist" id="tList"></div>
+      <p class="syncnote" id="tSync"></p>
+    </div>
+  </section>
+
+  <footer>
+    <nav class="links" aria-label="Footer"><a href="spot.html">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a><a href="refunds.html">Refunds &amp; cancellation</a><a href="delivery.html">Delivery policy</a></nav>
+    <span>Nope &amp; Hope points out warning signs; it can't prove a job is genuine. Report job fraud at cybercrime.gov.in or call 1930, India's cyber crime helpline.</span>
+    <span>Your text and files are read inside this page and aren't stored. The optional AI rewrite sends only your weak bullet points and the job ad to Claude.</span>
+  </footer>
+</div>
+
+<dialog id="signup" aria-labelledby="suTitle">
+  <form class="signup" id="suForm" novalidate>
+    <span class="tape" aria-hidden="true"></span>
+    <button type="button" class="x" id="suClose" aria-label="Close">×</button>
+    <h3 id="suTitle">You've used your free check</h3>
+    <p id="suWhy">Make a free account to keep checking job messages. It takes 20 seconds.</p>
+    <div id="suStep1" style="display:grid;gap:14px">
+      <div class="field"><label for="suName">Your name</label><input id="suName" autocomplete="given-name" placeholder="Riya"></div>
+      <div class="field"><label for="suContact" id="suContactLab">Mobile number or email</label><input id="suContact" autocomplete="email" inputmode="email" placeholder="98XXXXXXXX or you@email.com"></div>
+      <label class="check"><input type="checkbox" id="suAlerts" checked> Send me a short scam alert when a new trick starts going around</label>
+    </div>
+    <div id="suStep2" style="display:grid;gap:10px" hidden>
+      <div class="field"><label for="suCode">6-digit code (only if your email shows one)</label><input id="suCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></div>
+      <button type="button" class="linkbtn" id="suBack" style="justify-self:start">Use a different email</button>
+    </div>
+    <div class="err" id="suErr" role="alert"></div>
+    <button class="btn ink" type="submit" id="suBtn">Create free account</button>
+    <div class="preview" id="suNote">Preview build: your account is saved in this browser only.</div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, reduce ? 150 : ms));
+const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2800); };
+
+/* ---------- backend: Supabase when config.js is filled in, otherwise this browser only ---------- */
+const CFG = window.NH_CONFIG || {};
+let sb = null;
+try { if (CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase) sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey); } catch(e){ sb = null; }
+const LIVE = !!sb;
+
+async function hashId(v){
+  const data = new TextEncoder().encode('nopehope:' + v);
+  if (window.crypto && crypto.subtle){
+    const d = await crypto.subtle.digest('SHA-256', data);
+    return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  if (LIVE) throw new Error('no-crypto');
+  let h = 2166136261; for (const b of data){ h ^= b; h = Math.imul(h, 16777619) >>> 0; } return 'local' + h.toString(16);
+}
+const LOCAL_KEY = 'nopehope_reports';
+const readLocal = () => { try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}') || {}; } catch(e){ return {}; } };
+const Reports = {
+  async counts(hashes){
+    if (!hashes.length) return {};
+    if (LIVE){
+      const {data, error} = await sb.rpc('report_counts', {hashes});
+      if (error) throw error;
+      const out = {}; (data || []).forEach(r => { out[r.ident_hash] = {n: Number(r.reports) || 0, last: r.last_reported}; }); return out;
+    }
+    const loc = readLocal(), out = {};
+    hashes.forEach(h => { if (loc[h]) out[h] = {n: loc[h].n, last: loc[h].last}; });
+    return out;
+  },
+  async add(items, scamType){
+    if (LIVE){
+      for (const it of items){
+        const {error} = await sb.from('reports').insert({ident_hash: it.hash, kind: it.kind, scam_type: scamType});
+        if (error && error.code !== '23505') throw error;
+      }
+      return;
+    }
+    const loc = readLocal(), now = new Date().toISOString();
+    items.forEach(it => { const r = loc[it.hash] || {n:0}; if (!r.mine){ r.n++; r.mine = true; r.last = now; } loc[it.hash] = r; });
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(loc)); } catch(e){}
+  }
+};
+
+/* ---------- account + free check ---------- */
+const FREE_CHECKS = 1;
+let mem = {checks:0, user:null};
+try { const v = JSON.parse(localStorage.getItem('safeapply') || 'null'); if (v) mem = Object.assign(mem, v); } catch(e){}
+if (LIVE) mem.user = null;
+const save = () => { try { localStorage.setItem('safeapply', JSON.stringify(mem)); } catch(e){} };
+function renderAcct(){
+  const a = $('#acct');
+  if (mem.user){
+    a.innerHTML = `<span class="me">Hi, ${esc(mem.user.name)}</span><button class="linkbtn" id="logout">Log out</button>`;
+    $('#logout').onclick = logout;
+  } else {
+    const left = Math.max(0, FREE_CHECKS - mem.checks);
+    a.innerHTML = `<span class="counter">${left ? `<b>${left}</b> free check left` : 'Free check used'}</span><button class="linkbtn" id="login">Log in</button>`;
+    $('#login').onclick = () => openSignup('login');
+  }
+}
+let pending = null, suEmail = '';
+const dlg = $('#signup');
+function setStep(n){
+  $('#suStep1').hidden = n !== 1; $('#suStep2').hidden = n !== 2;
+  $('#suBtn').textContent = n === 2 ? 'Verify and continue' : (LIVE ? 'Email me a code' : 'Create free account');
+}
+function openSignup(why, then){
+  pending = then || null;
+  const copy = {
+    scam:['You\'ve used your free check','Make a free account to keep checking job messages. It takes 20 seconds.'],
+    unlock:['Unlock your full report','The full report is free while Nope & Hope is in beta. Make a free account to open it. It takes 20 seconds.'],
+    login:['Welcome to Nope & Hope','Make a free account for unlimited scam checks and saved CV reports.'],
+    report:['Sign in to report','Reports come from real accounts, so the counts stay trustworthy. It takes 20 seconds.'],
+  }[why];
+  $('#suTitle').textContent = copy[0]; $('#suWhy').textContent = copy[1]; $('#suErr').textContent = '';
+  if (LIVE){
+    $('#suContactLab').textContent = 'Email'; $('#suContact').placeholder = 'you@email.com';
+    $('#suNote').textContent = 'We\'ll email you a 6-digit code. No password needed.';
+  }
+  setStep(1);
+  if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+  setTimeout(() => $('#suName').focus(), 50);
+}
+const closeSignup = () => { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); };
+$('#suClose').onclick = () => { pending = null; closeSignup(); };
+$('#suBack').onclick = () => { $('#suErr').textContent = ''; setStep(1); };
+const firstName = n => String(n || 'there').trim().split(/\s+/)[0].slice(0, 24) || 'there';
+function signedIn(name, contact){
+  mem.user = {name: firstName(name), contact}; save();
+  closeSignup(); renderAcct(); trackerAuthChanged(); toast(`Welcome, ${mem.user.name}! Checks are unlimited now.`);
+  const p = pending; pending = null; if (p) p();
+}
+$('#suForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#suErr'), btn = $('#suBtn'); err.textContent = '';
+  if (!$('#suStep2').hidden){
+    const code = $('#suCode').value.replace(/\D/g, '');
+    if (code.length !== 6){ err.textContent = 'Enter the 6-digit code from your email.'; return; }
+    btn.disabled = true;
+    try {
+      const {data, error} = await sb.auth.verifyOtp({email: suEmail, token: code, type: 'email'});
+      if (error) throw error;
+      const u = (data && (data.user || (data.session && data.session.user))) || {};
+      signedIn((u.user_metadata && u.user_metadata.name) || $('#suName').value || suEmail.split('@')[0], suEmail);
+    } catch(x){ err.textContent = 'That code didn\'t work. Check it, or go back and ask for a new one.'; }
+    finally { btn.disabled = false; }
+    return;
+  }
+  const name = $('#suName').value.trim(), c = $('#suContact').value.trim().replace(/\s+/g, '');
+  const phone = /^(\+91)?[6-9]\d{9}$/.test(c), email = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(c);
+  if (!name) { err.textContent = 'Add your name so we know what to call you.'; return; }
+  if (LIVE){
+    if (!email){ err.textContent = 'Enter a valid email address.'; return; }
+    btn.disabled = true;
+    try {
+      const {error} = await sb.auth.signInWithOtp({email: c, options: {shouldCreateUser: true, emailRedirectTo: location.origin + location.pathname, data: {name, scam_alerts: $('#suAlerts').checked}}});
+      if (error) throw error;
+      suEmail = c; $('#suCode').value = ''; setStep(2);
+      $('#suWhy').textContent = `We've emailed ${c}. Open the sign-in link in that email on this device, or, if the email shows a 6-digit code, enter it below. It can take a minute to arrive; check spam too.`;
+      setTimeout(() => $('#suCode').focus(), 50);
+    } catch(x){ err.textContent = (x && x.status === 429) ? 'Too many codes asked for. Wait a few minutes and try again.' : 'We couldn\'t send the code. Check the email address and try again.'; }
+    finally { btn.disabled = false; }
+    return;
+  }
+  if (!phone && !email) { err.textContent = 'Enter a 10-digit Indian mobile number or a valid email.'; return; }
+  signedIn(name, c);
+});
+async function logout(){
+  if (LIVE){ try { await sb.auth.signOut(); } catch(e){} }
+  mem.user = null; mem.checks = FREE_CHECKS; save(); renderAcct(); trackerAuthChanged(); toast('Logged out.');
+}
+const cleanAuthHash = () => { if (/access_token|error_description/.test(location.hash)){ try { history.replaceState(null, '', location.pathname); } catch(e){} } };
+function fromSession(session, greet){
+  const u = session && session.user; if (!u || mem.user) return;
+  mem.user = {name: firstName((u.user_metadata && u.user_metadata.name) || (u.email || '').split('@')[0]), contact: u.email};
+  renderAcct(); trackerAuthChanged(); cleanAuthHash();
+  if (dlg.open) closeSignup();
+  if (greet) toast(`Welcome, ${mem.user.name}! You're signed in.`);
+}
+if (LIVE){
+  const fromLink = /access_token/.test(location.hash);
+  if (/error_description/.test(location.hash)){ cleanAuthHash(); setTimeout(() => toast('That sign-in link has expired. Log in again to get a new one.'), 400); }
+  sb.auth.getSession().then(({data}) => fromSession(data && data.session, fromLink)).catch(() => {});
+  sb.auth.onAuthStateChange((ev, session) => {
+    if (ev === 'SIGNED_OUT'){ mem.user = null; renderAcct(); trackerAuthChanged(); }
+    else if (ev === 'SIGNED_IN') fromSession(session, true);
+  });
+}
+renderAcct();
+
+/* ---------- tabs ---------- */
+const tabs = [...document.querySelectorAll('.ftab')];
+const show = m => {
+  tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.m === m)));
+  $('#panel-check').hidden = m !== '1'; $('#panel-diagnose').hidden = m !== '2'; $('#panel-track').hidden = m !== '3';
+};
+const HASH = {'1':'#check', '2':'#diagnose', '3':'#tracker'};
+tabs.forEach(t => t.addEventListener('click', () => { show(t.dataset.m); try { history.replaceState(null, '', HASH[t.dataset.m]); } catch(e){} }));
+if (location.hash === '#diagnose') show('2');
+if (location.hash === '#tracker') show('3');
+
+/* ---------- hand-drawn icons ---------- */
+const ICON = {
+  cross:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5 C 8 8, 12 12, 16 15.5 M15.5 4 C 12 8, 8 12, 4.5 16" fill="none" stroke="var(--red)" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  amber:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3 L10 12.5" fill="none" stroke="var(--amber)" stroke-width="2.6" stroke-linecap="round"/><circle cx="10" cy="16.5" r="1.6" fill="var(--amber)"/></svg>',
+  dash:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 C 8 9.5, 12 11, 16 10" fill="none" stroke="var(--muted)" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  tick:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10.5 C 5.5 12, 7 14, 8.2 15.8 C 10.5 10.5, 13.5 6.5, 17 3.8" fill="none" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  box:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4 C 8 3.5, 12 3.8, 16.2 3.6 C 16.6 8, 16.3 12, 16.5 16.4 C 12 16.6, 8 16.2, 3.6 16.5 C 3.3 12, 3.7 8, 3.5 4" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  boxTick:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4 C 8 3.5, 12 3.8, 16.2 3.6 C 16.6 8, 16.3 12, 16.5 16.4 C 12 16.6, 8 16.2, 3.6 16.5 C 3.3 12, 3.7 8, 3.5 4" fill="none" stroke="var(--muted)" stroke-width="1.6"/><path d="M6 10 C 7.5 11.5, 8.5 12.5, 9.2 13.8 C 11 10, 13 7.5, 16 5" fill="none" stroke="var(--pen)" stroke-width="2.2" stroke-linecap="round"/></svg>',
+};
+
+/* ---------- MODULE 1: scam rules ---------- */
+const RULES = [
+ {id:'money',sev:'high',w:40,t:'Asks you to pay',why:'Real employers never charge to hire you. "Refundable", "registration" or "security" fees are the most common job scam in India.',
+  re:/\b(registration|security|refundable|processing|training|joining|verification|kit|uniform|laptop|id card)\s*(fee|fees|charge|charges|amount|deposit)\b|\b(pay|deposit|transfer)\s+(rs\.?|₹|inr)\s*\d[\d,]*|\b(fee|fees|deposit)\s+of\s+(rs\.?|₹|inr)?\s*\d[\d,]*/gi},
+ {id:'otp',sev:'high',w:35,t:'Wants an OTP, UPI PIN or bank login',why:'No hiring step ever needs an OTP or PIN. Sharing one lets someone empty your account.',
+  re:/\b(otp|upi\s*pin|atm\s*pin|cvv|net\s*banking\s*(password|login))\b/gi},
+ {id:'task',sev:'high',w:30,t:'Task or crypto earning scheme',why:'"Rate products, like videos, earn daily" jobs pay a little first, then ask you to invest. They aren\'t jobs.',
+  re:/\b(usdt|crypto|bitcoin|prepaid\s+tasks?|like\s+(and|&)\s+subscribe|youtube\s+likes?|rat(e|ing)\s+(hotels|products|movies)|google\s+reviews?|daily\s+tasks?|merchant\s+tasks?)\b/gi},
+ {id:'pay',sev:'mid',w:18,t:'Pay that sounds too easy',why:'Big daily earnings for simple work from home is a classic hook.',
+  re:/\b(daily|same[-\s]day)\s+payment\b|\b(earn|income)\s+(up\s*to\s+)?(rs\.?|₹|inr)\s*[\d,]+|(rs\.?|₹)\s*[\d,]+\s*(daily|per\s+day|\/day|a\s+day)/gi},
+ {id:'nointerview',sev:'mid',w:16,t:'Selected without a real interview',why:'Genuine roles assess you first. "Direct joining" or a selection out of nowhere is a warning sign.',
+  re:/\b(no\s+interview|without\s+(any\s+)?interview|direct\s+(joining|selection)|you\s+(have\s+been|are)\s+selected|spot\s+offer|100%\s+(job|placement)|guaranteed\s+(job|placement))\b/gi},
+ {id:'docs',sev:'mid',w:14,t:'Asks for ID or bank details early',why:'Aadhaar, PAN and bank details are collected after a verified offer, through the company\'s HR portal, never over chat or email.',
+  re:/\b(aadhaar|aadhar|pan\s*card|bank\s*(account|details|passbook)|account\s*number|ifsc)\b/gi},
+ {id:'govt',sev:'mid',w:14,t:'Government job "shortcut"',why:'Government jobs come only through official exams and notices. No agent can get you one for a fee.',
+  re:/\b(railway|ssc|government|govt\.?|sarkari|psu)\s+(job|jobs|vacancy|vacancies|naukri)\b[^.]{0,60}\b(fee|pay|direct|backdoor|confirm)\w*/gi},
+ {id:'urgency',sev:'mid',w:12,t:'Pressure to decide fast',why:'Scammers rush you so you don\'t verify. A real offer gives you time to think.',
+  re:/\b(urgent(ly)?|immediate\s+joining|today\s+only|limited\s+(seats|slots|vacancies)|within\s+\d+\s*(hours|hrs|mins|minutes)|last\s+date\s+today|hurry|act\s+fast|offer\s+expires)\b/gi},
+ {id:'offplatform',sev:'mid',w:12,t:'Moves you to WhatsApp or Telegram',why:'Recruiters at real companies use official email and job portals, not personal chat apps.',
+  re:/\b(whatsapp|telegram)\b|\b(wa\.me|t\.me)\/\S*/gi},
+ {id:'freemail',sev:'mid',w:12,t:'Recruiter uses a free email address',why:'Company recruiters write from the company\'s own domain, like name@company.com, not Gmail or Yahoo.',
+  re:/[\w.+-]+@(gmail|yahoo|outlook|hotmail|rediffmail|ymail|protonmail)\.(com|in|co\.in)\b/gi},
+ {id:'vague',sev:'low',w:8,t:'Vague "easy work" role',why:'Data entry, typing or form filling with high pay and no clear company is often a front.',
+  re:/\b(data\s+entry|typing\s+work|copy[-\s]paste\s+work|form\s+filling|sms\s+sending|captcha\s+(typing|work)|part[-\s]time\s+work\s+from\s+home)\b/gi},
+ {id:'links',sev:'low',w:8,t:'Shortened or form links',why:'Short links hide where they lead. Open the company\'s careers page yourself instead.',
+  re:/\b(bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|forms\.gle|shorturl\.at)\/\S*/gi},
+ {id:'tone',sev:'low',w:5,t:'Over-excited tone',why:'Lots of exclamation marks and hype is common in mass scam messages.',re:/!{2,}/g},
+];
+const QUICK = {
+  qApplied:{sev:'mid',w:15,t:'You never applied',why:'Unsolicited offers for jobs you never applied to are a common opening move.'},
+  qInterview:{sev:'mid',w:16,t:'No interview happened',why:'A real employer assesses you before making an offer.',dup:'nointerview'},
+  qPaid:{sev:'high',w:40,t:'They asked you to pay',why:'Any payment request to get or keep a job means it isn\'t a real job.',dup:'money'},
+};
+const FREE = /@(gmail|yahoo|outlook|hotmail|rediffmail|ymail|protonmail)\./i;
+
+function analyseScam(text, quick){
+  const flags = [], ranges = []; let score = 0;
+  for (const r of RULES){
+    r.re.lastIndex = 0; let m, hit = false;
+    while ((m = r.re.exec(text))){ if (!m[0]) { r.re.lastIndex++; continue; } hit = true; ranges.push([m.index, m.index + m[0].length, r.sev]); }
+    if (hit){ flags.push(r); score += r.w; }
+  }
+  for (const [k,q] of Object.entries(QUICK)){
+    if (!quick[k] || (q.dup && flags.some(f => f.id === q.dup))) continue;
+    flags.push(q); score += q.w;
+  }
+  const good = [];
+  const emails = text.match(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g) || [];
+  const corp = emails.find(e => !FREE.test(e));
+  if (corp) good.push({t:'Email from a company domain: ' + corp.split('@')[1], why:'Good sign. Check it matches the company website exactly; scammers register look-alikes such as tcs-careers.in.'});
+  if (/\b(assessment|technical round|hr round|interview with)\b/i.test(text) && !flags.some(f => f.id === 'nointerview')) good.push({t:'Mentions a real selection process', why:'Assessments and interview rounds are what genuine hiring looks like.'});
+  if (/\bno\s+(fee|charges?|payment)\b/i.test(text)) good.push({t:'Says there is no fee', why:'Genuine employers often say this upfront.'});
+  if (/\bcareers\.[\w-]+\./i.test(text)) good.push({t:'Points to an official careers page', why:'Open it yourself by typing the company website, not by tapping the link.'});
+  score = Math.max(0, Math.min(100, score - good.length * 4));
+  const level = score >= 45 ? 'high' : score >= 18 ? 'mid' : 'low';
+  const order = {high:0, mid:1, low:2};
+  flags.sort((a,b) => order[a.sev] - order[b.sev] || b.w - a.w);
+  return {flags, good, score, level, ranges};
+}
+function paint(text, ranges){
+  const rank = {low:1, mid:2, high:3, wk:2, hit:1};
+  const marks = new Array(text.length).fill(null);
+  for (const [s,e,cls] of ranges) for (let i = s; i < e; i++) if (!marks[i] || rank[cls] > rank[marks[i]]) marks[i] = cls;
+  let out = '', i = 0;
+  while (i < text.length){
+    let j = i; while (j < text.length && marks[j] === marks[i]) j++;
+    const seg = esc(text.slice(i, j)), c = marks[i];
+    out += !c ? seg : (c === 'wk' || c === 'hit') ? `<span class="${c}">${seg}</span>` : `<mark class="${c}">${seg}</mark>`;
+    i = j;
+  }
+  return out;
+}
+const VERDICT = {
+  high:{pill:'High risk', head:'Stop here. This looks like a scam.', calm:'Good call checking first. Nothing\'s lost if you stop now.',
+    steps:['Don\'t pay, and don\'t share Aadhaar, PAN, bank details or OTPs.','Stop replying. Block the number if they keep pushing.','Report it at cybercrime.gov.in, or call 1930.','Already paid? Call 1930 right away. Fast reports help freeze the money.']},
+  mid:{pill:'Check first', head:'Pause and verify before you reply.', calm:'A few things here need a second look. Ten minutes of checking will settle it.',
+    steps:['Find this exact role on the company\'s own careers page.','Look up the recruiter on LinkedIn and confirm they work there.','Call the company on the number from its official website, not the one in the message.','Don\'t pay or share ID documents until it checks out.']},
+  low:{pill:'No red flags found', head:'Nothing alarming here. Still verify once.', calm:'This reads like normal hiring. One quick check keeps it that way.',
+    steps:['Confirm the role on the company\'s careers page.','Check the recruiter\'s email domain matches the company website exactly.','Never pay or share an OTP at any stage, even later.']},
+};
+function renderScam(text, res, example){
+  const v = VERDICT[res.level];
+  const icon = s => s === 'high' ? ICON.cross : s === 'mid' ? ICON.amber : ICON.dash;
+  $('#scamOut').innerHTML = `
+    <div class="res-top"><span class="pill ${res.level}">${v.pill}</span>${example ? '<span class="ex">Example result</span>' : ''}</div>
+    <p class="verdict">${v.head}</p>
+    <div class="meter"><div class="track"><span class="marker" style="left:0%"></span></div><div class="scale"><span>Low</span><span>Check</span><span>High risk</span></div></div>
+    <div class="calm">${v.calm}</div>
+    ${res.flags.length ? `<p class="sec">Warning signs we found (${res.flags.length})</p><ul class="marks">${res.flags.map(f => `<li>${icon(f.sev)}<div><b>${esc(f.t)}</b><span>${esc(f.why)}</span></div></li>`).join('')}</ul>` : ''}
+    ${res.good.length ? `<p class="sec">Good signs</p><ul class="marks">${res.good.map(g => `<li>${ICON.tick}<div><b>${esc(g.t)}</b><span>${esc(g.why)}</span></div></li>`).join('')}</ul>` : ''}
+    ${res.ranges.length ? `<p class="sec">Where we spotted them</p><div class="quote">${paint(text, res.ranges)}</div>` : ''}
+    <div id="repBox" style="display:grid;gap:10px"></div>
+    <p class="sec">What to do now</p><ol class="steps">${v.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+    <div class="actions"><button class="btn line small" id="warn">Copy a warning for your friends</button></div>`;
+  renderReports(text, $('#repBox'), 'r');
+  requestAnimationFrame(() => requestAnimationFrame(() => { const mk = $('#scamOut .marker'); if (mk) mk.style.left = Math.max(3, Math.min(97, res.score)) + '%'; }));
+  $('#warn').onclick = () => copy(res.level === 'low'
+    ? 'Checked a job offer on Nope & Hope: no red flags, but always verify on the company careers page and never pay to get a job.'
+    : `Heads up: I checked a job message on Nope & Hope and it shows scam signs (${res.flags.slice(0,3).map(f => f.t.toLowerCase()).join('; ')}). Never pay or share OTP/Aadhaar for a job. Report fraud on 1930.`);
+}
+/* ---------- reported senders ---------- */
+const KIND = {phone:'Phone', email:'Email', upi:'UPI ID', telegram:'Telegram', link:'Link'};
+const UPI_RE = /(?<![\w.@-])[\w.-]{2,}@(?:okaxis|okhdfcbank|okicici|oksbi|ybl|ibl|axl|paytm|upi|apl|yapl|ptyes|ptsbi|pthdfc|ptaxis|fbl|airtel|jupiteraxis|slc|freecharge|ikwik|axisbank|hdfcbank|icici|sbi|kotak|federal|idfcbank|indus|yesbank|pnb|boi|barodampay|unionbank|cnrb|aubank|rbl|dbs|hsbc|sc|citi|timecosmos|waaxis|wahdfcbank|wasbi|waicici)(?!\w|\.\w)/gi;
+const SHORTENERS = /^(bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|forms\.gle|shorturl\.at|t\.ly|is\.gd|tiny\.cc)$/;
+function extractIds(text){
+  const out = [], seen = new Set();
+  const add = (kind, label, norm) => { const k = kind + ':' + norm; if (!norm || seen.has(k)) return; seen.add(k); out.push({kind, label, norm: k}); };
+  const upis = text.match(UPI_RE) || [];
+  upis.forEach(u => add('upi', u, u.toLowerCase()));
+  (text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) || []).forEach(e => add('email', e, e.toLowerCase().replace(/\.$/, '')));
+  (text.match(/(?<![\d])(?:\+?91[\s-]?|0)?[6-9]\d{4}[\s-]?\d{5}(?!\d)/g) || []).forEach(p => { const d = p.replace(/\D/g, '').slice(-10); add('phone', p.trim(), '+91' + d); });
+  (text.match(/\bwa\.me\/(?:91)?([6-9]\d{9})\b/gi) || []).forEach(w => { const d = w.replace(/\D/g, '').slice(-10); add('phone', w, '+91' + d); });
+  (text.match(/\bt(?:elegram)?\.me\/[A-Za-z0-9_]{4,}/gi) || []).forEach(t => { const h = t.split('/')[1]; add('telegram', 't.me/' + h, h.toLowerCase()); });
+  (text.match(/\b(?:https?:\/\/|www\.)[^\s<>"')]+|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|forms\.gle|shorturl\.at|t\.ly|is\.gd|tiny\.cc)\/[^\s<>"')]+/gi) || []).forEach(u => {
+    u = u.replace(/[.,;:!?]+$/, '');
+    try {
+      const url = new URL(/^https?:/i.test(u) ? u : 'https://' + u);
+      const host = url.hostname.replace(/^www\./, '').toLowerCase();
+      if (host === 't.me' || host === 'telegram.me' || host === 'wa.me') return;
+      const path = url.pathname.replace(/\/+$/, '');
+      add('link', u, host + (SHORTENERS.test(host) || path ? path.toLowerCase() : ''));
+    } catch(e){}
+  });
+  return out.slice(0, 12);
+}
+function ago(iso){
+  if (!iso) return '';
+  const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
+  return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d < 60 ? `${d} days ago` : `${Math.round(d / 30)} months ago`;
+}
+async function renderReports(text, box, px){
+  if (!box) return;
+  const head = '<p class="sec" style="margin:0">Reported by other users</p>';
+  const ids = extractIds(text);
+  if (!ids.length){
+    box.innerHTML = px === 'r' ? head + '<p class="note" style="margin:0">We didn\'t find a phone number, email, UPI ID or link to look up. If you have the sender\'s details, paste them in too, or use the look-up box below.</p>' : '<p class="note" style="margin:0">Enter a 10-digit mobile number, an email, a UPI ID or a link.</p>';
+    return;
+  }
+  box.innerHTML = head + '<p class="note" style="margin:0">Checking reports…</p>';
+  let counts;
+  try { for (const i of ids) i.hash = await hashId(i.norm); counts = await Reports.counts(ids.map(i => i.hash)); }
+  catch(e){ if (box.isConnected) box.innerHTML = head + '<p class="note" style="margin:0">We couldn\'t check reports right now. Try again in a minute.</p>'; return; }
+  if (!box.isConnected) return;
+  const anyHit = ids.some(i => counts[i.hash]);
+  box.innerHTML = head + `<ul class="idlist">${ids.map(i => { const c = counts[i.hash];
+      return `<li><span class="kind">${KIND[i.kind]}</span><span class="val">${esc(i.label)}</span><span class="badge ${c ? 'red' : 'grey'}">${c ? `Reported ${c.n} time${c.n > 1 ? 's' : ''}${c.last ? ' · ' + ago(c.last) : ''}` : 'No reports yet'}</span></li>`; }).join('')}</ul>
+    <p class="repnote">${anyHit ? 'Other job seekers reported this as a scam. ' : ''}Reports come from Nope &amp; Hope users and aren't verified. No reports doesn't mean it's safe.${LIVE ? '' : ' Preview: reports are saved in this browser only.'}</p>
+    <div class="actions"><button class="btn line small" id="${px}Open">Report a scam sender</button></div>
+    <div class="rform" id="${px}Form" hidden>
+      <p class="sec" style="margin:0">Which of these contacted you?</p>
+      <div class="rchecks">${ids.map((i, k) => `<label class="rc"><input type="checkbox" id="${px}Id${k}" checked><span><b>${KIND[i.kind]}:</b> ${esc(i.label)}</span></label>`).join('')}</div>
+      <label class="lab" for="${px}Type">What happened?</label>
+      <select id="${px}Type"><option>Asked for a fee or deposit</option><option>Fake offer letter or interview</option><option>Task, review or crypto earning scheme</option><option>Asked for OTP, Aadhaar or bank details</option><option>Something else</option></select>
+      <label class="rc"><input type="checkbox" id="${px}Sure"><span>This contacted me about a job, and I honestly believe it's a scam.</span></label>
+      <div class="err" id="${px}Err" role="alert"></div>
+      <div class="actions"><button class="btn blu small" id="${px}Send">Send report</button><button class="btn line small" id="${px}Cancel">Cancel</button></div>
+    </div>`;
+  const form = box.querySelector('#' + px + 'Form');
+  box.querySelector('#' + px + 'Open').onclick = () => { form.hidden = false; box.querySelector('#' + px + 'Open').hidden = true; };
+  box.querySelector('#' + px + 'Cancel').onclick = () => { form.hidden = true; box.querySelector('#' + px + 'Open').hidden = false; };
+  box.querySelector('#' + px + 'Send').onclick = () => {
+    const err = box.querySelector('#' + px + 'Err'); err.textContent = '';
+    const picked = ids.filter((i, k) => box.querySelector('#' + px + 'Id' + k).checked);
+    if (!picked.length){ err.textContent = 'Tick at least one sender to report.'; return; }
+    if (!box.querySelector('#' + px + 'Sure').checked){ err.textContent = 'Please confirm this contacted you about a job and you believe it\'s a scam.'; return; }
+    const type = box.querySelector('#' + px + 'Type').value;
+    const send = async () => {
+      const btn = box.querySelector('#' + px + 'Send'); if (btn) btn.disabled = true;
+      try { await Reports.add(picked, type); toast('Thank you. Your report warns the next person.'); renderReports(text, box, px); }
+      catch(e){ err.textContent = 'We couldn\'t send your report. Try again in a minute.'; if (btn) btn.disabled = false; }
+    };
+    mem.user ? send() : openSignup('report', send);
+  };
+}
+$('#lookBtn').onclick = () => { const v = $('#lookIn').value.trim(); if (!v){ $('#lookOut').innerHTML = '<p class="note" style="margin:0">Enter a mobile number, email, UPI ID or link first.</p>'; return; } renderReports(v, $('#lookOut'), 'l'); };
+$('#lookIn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#lookBtn').click(); } });
+function copy(text){
+  const done = () => toast('Copied! Send it to your friends.');
+  try { navigator.clipboard.writeText(text).then(done, () => fallback(text)); } catch(e){ fallback(text); }
+}
+function fallback(text){
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('Copied! Send it to your friends.'); } catch(e){ toast('Select the text and copy it yourself.'); }
+  ta.remove();
+}
+const SCAMS = [
+`Hello!! Greetings from Amazon HR team. You have been selected for Part Time Work From Home job. No interview needed. Daily payment ₹3,000–₹8,000 just for rating products and giving Google reviews. Limited slots, reply within 2 hours. Message our HR on Telegram to start. Registration fee of Rs 499 is refundable after first task.`,
+`Dear Candidate,
+Congratulations! Based on your Naukri profile you are selected for the post of HR Executive at Infotech Global Solutions Pvt Ltd with CTC 6.5 LPA. Direct joining, no interview required.
+To confirm your seat, pay the security deposit of Rs 2,500 for laptop and ID card. Send your Aadhaar card, PAN card and bank account details to hr.infotechglobal@gmail.com today only. Offer expires in 24 hours.`,
+`Hi Riya, thanks for applying to the Graduate Trainee – HR role at Nimbus Retail. You've been shortlisted for the online assessment, followed by an HR round and a final interview with the hiring manager.
+Please confirm a slot for next week by replying to this email (talent@nimbusretail.in). You can also find the role on careers.nimbusretail.in. There is no fee at any stage of our hiring process.`
+];
+let scamIdx = 0;
+const quickState = () => ({qApplied:$('#qApplied').checked, qInterview:$('#qInterview').checked, qPaid:$('#qPaid').checked});
+const loadScam = i => { $('#scamText').value = SCAMS[i]; ['qApplied','qInterview','qPaid'].forEach(id => $('#'+id).checked = false); renderScam(SCAMS[i], analyseScam(SCAMS[i], {}), true); };
+$('#nextScam').onclick = () => { scamIdx = (scamIdx + 1) % SCAMS.length; loadScam(scamIdx); };
+async function runScam(){
+  const text = $('#scamText').value.trim();
+  if (text.length < 15){ $('#scamOut').innerHTML = '<p class="verdict">Paste the full message first.</p><p class="note">Include the sender\'s email or number if you have it. The more we see, the better the check.</p>'; return; }
+  if (!mem.user && mem.checks >= FREE_CHECKS){ openSignup('scam', runScam); return; }
+  const btn = $('#runScam'); btn.disabled = true;
+  $('#scamOut').innerHTML = '<div class="waiting">Take a breath. We\'re reading it line by line <span class="dots"><i></i><i></i><i></i></span></div>';
+  await wait(1700);
+  renderScam(text, analyseScam(text, quickState()), false);
+  if (!mem.user){ mem.checks++; save(); renderAcct(); }
+  btn.disabled = false;
+}
+$('#runScam').onclick = runScam;
+
+/* ---------- file upload (PDF, Word, text) ---------- */
+if (window.pdfjsLib) { try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e){} }
+async function readFile(file){
+  const name = file.name.toLowerCase();
+  if (name.endsWith('.txt') || file.type === 'text/plain') return await file.text();
+  if (name.endsWith('.docx')){
+    if (!window.mammoth) throw new Error('Word reader didn\'t load. Paste the text instead.');
+    const r = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+    return r.value;
+  }
+  if (name.endsWith('.pdf') || file.type === 'application/pdf'){
+    if (!window.pdfjsLib) throw new Error('PDF reader didn\'t load. Paste the text instead.');
+    const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
+    let out = '';
+    for (let p = 1; p <= Math.min(pdf.numPages, 6); p++){
+      const tc = await (await pdf.getPage(p)).getTextContent();
+      for (const it of tc.items) out += (it.str || '') + (it.hasEOL ? '\n' : ' ');
+      out += '\n';
+    }
+    out = out.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (out.length < 40) throw new Error('This PDF looks like a scanned image. Upload the original PDF or Word file, or paste the text.');
+    return out;
+  }
+  if (name.endsWith('.doc')) throw new Error('Older .doc files can\'t be read here. In Word, use Save As → .docx or PDF, then upload again.');
+  throw new Error('Upload a PDF, Word (.docx) or .txt file.');
+}
+function wireUpload(fileId, nameId, textId, boxId){
+  const input = $(fileId), label = $(nameId), ta = $(textId), box = $(boxId);
+  const handle = async file => {
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024){ label.className = 'fname bad'; label.textContent = 'That file is over 8 MB. Try a smaller one.'; return; }
+    label.className = 'fname'; label.textContent = 'Reading ' + file.name + '…';
+    try { ta.value = await readFile(file); label.className = 'fname ok'; label.textContent = '✓ ' + file.name + ' loaded. Check the text below.'; }
+    catch(e){ label.className = 'fname bad'; label.textContent = (e && e.message) || 'Couldn\'t read that file. Paste the text instead.'; }
+    input.value = '';
+  };
+  input.addEventListener('change', () => handle(input.files[0]));
+  box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('drag'); });
+  box.addEventListener('dragleave', () => box.classList.remove('drag'));
+  box.addEventListener('drop', e => { e.preventDefault(); box.classList.remove('drag'); handle(e.dataTransfer.files[0]); });
+}
+wireUpload('#scamFile', '#scamName', '#scamText', '#scamBox');
+wireUpload('#cvFile', '#cvName', '#cvText', '#cvBox');
+wireUpload('#jdFile', '#jdName', '#jdText', '#jdBox');
+
+/* ---------- MODULE 2: CV markup ---------- */
+const SKILLS = [
+ ['Talent acquisition',['talent acquisition','recruitment','recruiting','recruiter']],
+ ['Sourcing',['sourcing','source candidates','sourced']],
+ ['Resume screening',['screening','screen resumes','shortlisting','shortlisted']],
+ ['Interview coordination',['coordinate interviews','interview coordination','scheduling interviews','schedule interviews','interview scheduling','scheduled interviews']],
+ ['Onboarding',['onboarding','joining formalities','induction']],
+ ['Employee engagement',['employee engagement','engagement activities','engagement initiatives']],
+ ['Payroll',['payroll']],['Performance management',['performance management','appraisal','appraisals']],
+ ['Labour law',['labour law','labor law','labour laws','labour codes','statutory compliance']],
+ ['HRMS',['hrms','hris']],['ATS',['ats','applicant tracking']],['Darwinbox',['darwinbox']],['Keka',['keka']],['Workday',['workday']],['SAP SuccessFactors',['successfactors']],
+ ['MIS reports',['mis','mis reports']],['Naukri',['naukri']],['LinkedIn',['linkedin']],['Employee referrals',['referrals','referral']],
+ ['Excel',['excel','ms excel','advanced excel','vlookup','pivot tables']],['Google Sheets',['google sheets']],['PowerPoint',['powerpoint','ppt']],['MS Office',['ms office','microsoft office']],
+ ['Power BI',['power bi']],['Tableau',['tableau']],['SQL',['sql']],['Python',['python']],['Data analysis',['data analysis','analytics']],
+ ['Communication',['communication']],['Stakeholder management',['stakeholder management','stakeholders']],['Presentation skills',['presentation']],['Negotiation',['negotiation']],
+ ['Customer service',['customer service','customer support']],['Sales',['sales']],['Lead generation',['lead generation']],['CRM',['crm','salesforce','zoho']],
+ ['Digital marketing',['digital marketing']],['SEO',['seo']],['Social media',['social media']],['Content writing',['content writing','copywriting']],['Canva',['canva']],
+ ['Financial analysis',['financial analysis','financial modelling','financial modeling']],['Accounting',['accounting']],['Tally',['tally']],['GST',['gst']],
+ ['Java',['java']],['JavaScript',['javascript']],['React',['react']],['HTML/CSS',['html','css']],['Machine learning',['machine learning']],
+ ['Project management',['project management']],['Jira',['jira']],['Agile',['agile','scrum']],['Problem solving',['problem solving','problem-solving']],
+];
+const norm = s => ' ' + s.toLowerCase().replace(/[^a-z0-9+#.\/]+/g, ' ').replace(/\s+/g, ' ') + ' ';
+const has = (n, a) => n.includes(' ' + a + ' ') || n.includes(' ' + a + 's ');
+const WEAK = /\b(responsible for|worked on|helped|assisted (in|with)|handled|duties included|involved in|participated in)\b/i;
+const OBJ = /(seeking a (challenging|suitable)|reputed (organi[sz]ation|company)|utili[sz]e my skills|growth of the (company|organi[sz]ation))/i;
+const PERS = /(father'?s name|mother'?s name|date of birth|\bd\.?o\.?b\b|marital status|religion|caste)/i;
+const DECL = /i hereby declare/i;
+const BUL = /^([•\-*–▪●◦]|\d+[.)])\s*/;
+
+function analyseCV(cv, jd){
+  const ncv = norm(cv), njd = norm(jd);
+  const req = SKILLS.filter(([, a]) => a.some(x => has(njd, x)));
+  const hits = [], miss = [], hitAliases = [];
+  req.forEach(([k, a]) => { const found = a.filter(x => has(ncv, x)); if (found.length){ hits.push(k); hitAliases.push(...found); } else miss.push(k); });
+  const total = req.length, kw = total ? hits.length / total * 100 : 70;
+  const issues = [];
+  if (total) issues.push({kw:true, imp:Math.round(miss.length / total * 30), t:`Missing ${miss.length} of ${total} skills this job asks for`, d:'The hiring software and recruiters scan for these exact words before reading anything else.', f:'Add the ones you genuinely have to your Skills and bullets. Skip any you don\'t.'});
+  const words = cv.trim().split(/\s+/).filter(Boolean).length;
+  if (!/[\w.+-]+@[\w-]+\.[\w.]+/.test(cv)) issues.push({imp:15, t:'No email address', d:'Recruiters can\'t reach you.', f:'Put your email and phone in the first lines.'});
+  if (!/(\+91|\b)[6-9]\d{4}[\s-]?\d{5}\b|\+91[\s-]?\d/.test(cv)) issues.push({imp:8, t:'No phone number', d:'Indian recruiters usually call before they email.', f:'Add a mobile number with +91.'});
+  const noLinkedIn = !/linkedin\.com\//i.test(cv);
+  if (noLinkedIn) issues.push({imp:4, t:'No LinkedIn link', d:'Most recruiters look at LinkedIn before shortlisting a fresher.', f:'Add your LinkedIn URL next to your email.'});
+  const lines = cv.split(/\n/).map(l => l.trim()).filter(Boolean);
+  const bullets = lines.filter(l => BUL.test(l)).map(l => l.replace(BUL, ''));
+  const quant = bullets.filter(b => /\d/.test(b));
+  if (bullets.length >= 3 && quant.length / bullets.length < 0.34) issues.push({imp:12, t:`Only ${quant.length} of ${bullets.length} bullet points show a result`, d:'Without numbers, every fresher CV reads the same.', f:'Add a number to each bullet: how many, how much, how fast.'});
+  const weakCount = (cv.match(new RegExp(WEAK.source, 'gi')) || []).length;
+  if (weakCount) issues.push({imp:Math.min(14, 6 + weakCount * 2), t:`${weakCount} weak phrase${weakCount > 1 ? 's' : ''} like "responsible for" or "helped"`, d:'These describe duties, not what you achieved.', f:'Start each bullet with an action verb: Screened, Coordinated, Built, Analysed.'});
+  if (OBJ.test(cv)) issues.push({imp:8, t:'Generic career objective', d:'Recruiters skip this line. It could belong to anyone.', f:'Swap it for a 2-line summary: the role you want, your top two skills, one achievement.'});
+  if (PERS.test(cv)) issues.push({imp:7, t:'Personal details nobody needs', d:'Father\'s name, date of birth and marital status take space and can invite bias.', f:'Delete them. Keep name, phone, email, city and LinkedIn.'});
+  if (DECL.test(cv)) issues.push({imp:5, t:'"I hereby declare" at the end', d:'It adds nothing for private-sector jobs.', f:'Remove it and use the space for a project or certificate.'});
+  if (!/\b(projects?|internships?|experience)\b/i.test(cv)) issues.push({imp:12, t:'No projects or internships section', d:'For freshers, this is what recruiters read first.', f:'Add 2–3 projects or internships, each with a result.'});
+  if (!/\bskills\b/i.test(cv)) issues.push({imp:10, t:'No Skills section', d:'The hiring software looks for a clearly labelled skills list.', f:'Add one with tools and methods from the job ad.'});
+  if (words > 750) issues.push({imp:8, t:'Too long for a fresher', d:`About ${words} words. Recruiters spend seconds on a first look.`, f:'Cut to one page, about 350–600 words.'});
+  if (words < 120) issues.push({imp:8, t:'Very short CV', d:'Not enough here to judge fit.', f:'Add projects, internships, certificates and skills.'});
+  const title = ((jd.split('\n').map(l => l.trim()).find(Boolean) || '').split(/[–\-(|,]/)[0] || '').trim();
+  const tw = title.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !['with','and','for','the','senior','junior','trainee'].includes(w));
+  const titleMissing = tw.length > 0 && !tw.some(w => ncv.includes(' ' + w));
+  if (titleMissing) issues.push({imp:8, t:`Your CV never says "${title}"`, d:'Recruiters search by job title. If it isn\'t on your CV, you may not show up.', f:`Add a line under your name, like "Aspiring ${title}".`});
+  const penalty = issues.filter(i => !i.kw).reduce((s, i) => s + i.imp, 0);
+  const score = Math.round(kw * 0.6 + Math.max(0, 100 - penalty) * 0.4);
+  issues.sort((a, b) => b.imp - a.imp);
+  const weak = bullets.filter(b => !/\d/.test(b) || WEAK.test(b)).slice(0, 4);
+  return {score, hits, miss, req, issues, weak, total, hitAliases, titleMissing, title, noLinkedIn};
+}
+function markup(cv, d){
+  const raw = cv.split('\n');
+  const first = raw.findIndex(l => l.trim());
+  return raw.map((line, i) => {
+    const t = line.trim();
+    if (!t) return '<div class="ln"><span class="tx">&nbsp;</span></div>';
+    let cls = '', note = '', blue = false;
+    const ranges = [];
+    const w = t.match(new RegExp(WEAK.source, 'i')); if (w) ranges.push([w.index, w.index + w[0].length, 'wk']);
+    for (const a of new Set(d.hitAliases)){
+      const re = new RegExp('\\b' + escRe(a) + 's?\\b', 'gi'); let m;
+      while ((m = re.exec(t))) ranges.push([m.index, m.index + m[0].length, 'hit']);
+    }
+    if (OBJ.test(t)) { cls = 'strike'; note = 'generic. write 2 lines about you'; }
+    else if (PERS.test(t)) { cls = 'strike'; note = 'not needed, delete'; }
+    else if (DECL.test(t)) { cls = 'strike'; note = 'remove this'; }
+    else if (/^(declaration|personal details|career objective|objective)$/i.test(t)) { cls = 'strike'; }
+    else if (w) note = 'say what you achieved';
+    else if (BUL.test(t) && !/\d/.test(t)) note = 'add a number!';
+    else if (i === first && d.titleMissing) note = `add "${d.title}" under your name`;
+    else if (/@/.test(t) && d.noLinkedIn) note = '+ LinkedIn link';
+    else if (ranges.some(r => r[2] === 'hit')) { note = '✓ matches the job'; blue = true; }
+    return `<div class="ln ${cls}"><span class="tx">${paint(t, ranges)}</span>${note ? `<span class="pen${blue ? ' blue' : ''}">${esc(note)}</span>` : '<span></span>'}</div>`;
+  }).join('');
+}
+
+const SAMPLE_CV = `AARAV MEHTA
+aarav.mehta2003@gmail.com | +91 98220 41537 | Pune
+
+CAREER OBJECTIVE
+Seeking a challenging position in a reputed organisation where I can utilise my skills for the growth of the company.
+
+EDUCATION
+BBA (Human Resources), Fergusson College, Pune, 2025, CGPA 7.8
+
+INTERNSHIP
+HR Intern, BrightPath Consultancy, Pune (May–Jul 2025)
+• Responsible for screening resumes for open positions
+• Helped the team in scheduling interviews
+• Worked on employee engagement activities
+
+PROJECTS
+• Study on employee attrition in IT companies using survey data from 120 employees
+
+SKILLS
+MS Office, Communication, Team work, Leadership
+
+PERSONAL DETAILS
+Father's Name: Rakesh Mehta
+Date of Birth: 14/03/2003
+Marital Status: Single
+Languages: English, Hindi, Marathi
+
+DECLARATION
+I hereby declare that the above information is true to the best of my knowledge.`;
+const SAMPLE_JD = `HR Executive – Talent Acquisition (Freshers welcome)
+Nimbus Retail Pvt Ltd, Gurugram
+
+What you'll do
+- Source candidates through Naukri, LinkedIn and employee referrals
+- Screen resumes and coordinate interviews with hiring managers
+- Manage onboarding documentation and joining formalities
+- Maintain recruitment trackers and MIS reports in Excel
+- Support employee engagement initiatives
+
+What we're looking for
+- Graduate or MBA in HR
+- Proficiency in Advanced Excel and Google Sheets
+- Familiarity with an ATS or HRMS such as Darwinbox or Keka
+- Strong communication and stakeholder management skills
+- Understanding of labour law basics`;
+
+let unlocked = false, lastDiag = null, sample = null, lastArgs = null;
+let betaLogged = false;
+function unlockAll(){
+  const go = () => {
+    unlocked = true;
+    if (lastArgs) renderDiag(...lastArgs);
+    if ($('#fuOut').innerHTML) writeFollowups(false);
+    if (LIVE && mem.user && !betaLogged){ betaLogged = true; try { sb.from('beta_unlocks').insert({feature: 'full_cv_report'}).then(() => {}, () => {}); } catch(e){} }
+    toast('Unlocked. The full report is free while we\'re in beta.');
+  };
+  mem.user ? go() : openSignup('unlock', go);
+}
+const band = s => s >= 75 ? ['Strong fit. Go apply.', 'Small polish only.']
+  : s >= 50 ? ['Close. Fix the top two and you\'re in.', 'You\'re nearly there; the red marks show where.']
+  : ['Likely filtered before a person reads it.', 'This isn\'t about your ability. The CV isn\'t using the job\'s language yet, and that\'s very fixable.'];
+function renderDiag(d, cv, example){
+  lastArgs = [d, cv, example];
+  const [head, sub] = band(d.score);
+  const reasons = d.issues.map(i => `<li><b>${esc(i.t)}</b><div class="d">${esc(i.d)}</div><div class="f"><em>Fix:</em> ${esc(i.f)}</div></li>`);
+  const rest = reasons.slice(2).join('');
+  const checklist = d.req.map(([k]) => d.hits.includes(k) ? `<li class="got">${ICON.boxTick}${esc(k)}</li>` : `<li>${ICON.box}${esc(k)}</li>`).join('');
+  const weakHtml = d.weak.length ? d.weak.map((b, i) => `<div class="bul" id="bul${i}"><span class="o">${esc(b)}</span><span class="n" data-new>[action verb] + what you did + a number</span></div>`).join('') : '<p class="note">No weak bullet points. Nice.</p>';
+  $('#diagOut').innerHTML = `
+  <div class="result2">
+    <div class="sheet">
+      <span class="tagline">${example ? 'Example · marked up' : 'Your CV · marked up'}</span>
+      <div class="grade" aria-label="Score ${d.score} out of 100"><div><b>${d.score}</b><small>/100</small></div><svg viewBox="0 0 96 80" aria-hidden="true"><path d="M20 12 C 50 -2, 92 10, 92 40 C 92 70, 40 82, 14 66 C -4 54, 2 22, 30 12" fill="none" stroke="var(--red)" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+      ${markup(cv, d)}
+    </div>
+    <div class="side">
+      <div class="card"><h3>${head}</h3><p class="note" style="margin:0;font-size:.92rem">${sub}</p></div>
+      ${d.total ? `<div class="card"><p class="sec" style="margin:0">What the job ad asks for</p><ul class="checklist">${checklist}</ul><p class="note" style="margin:0">Red boxes are missing from your CV. Add only what's true, because interviews will test it.</p></div>` : '<div class="card"><p class="note" style="margin:0">We couldn\'t spot standard skills in the job ad. Paste the full ad, including requirements.</p></div>'}
+      <div class="card"><p class="sec" style="margin:0">Fix these first</p><ol class="reasons">${reasons.slice(0, 2).join('')}</ol>
+        <div class="lockwrap ${unlocked ? '' : 'locked'}">
+          <div class="lockcontent" style="display:grid;gap:14px">
+            ${rest ? `<ol class="reasons" start="3">${rest}</ol>` : ''}
+            <p class="sec" style="margin:0">Bullet points to rewrite</p>
+            <div class="formula">Formula: action verb + what you did + a number. Like: "Screened 300+ resumes for 6 roles in 3 weeks."</div>
+            ${weakHtml}
+            <div class="actions" id="aiRow" hidden><button class="btn ink small" id="aiBtn">Rewrite these with AI</button><button class="btn line small" id="aiStop" hidden>Stop</button><span class="note" id="aiNote">Uses only what your CV says. [X] marks a number for you to fill in.</span></div>
+          </div>
+          ${unlocked ? '' : `<div class="lockcta"><div class="envelope"><b>${Math.max(0, d.issues.length - 2)} more fixes + bullet rewrites</b><span>Every fix, in order of impact, with your bullets rewritten. Free while we're in beta; ₹99 later.</span><button class="btn small" id="unlockBtn">Unlock full report · free during beta</button></div></div>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+  const ub = $('#unlockBtn');
+  if (ub) ub.onclick = unlockAll;
+  prefillFollowup(cv, d);
+  wireAI(d);
+}
+function wireAI(d){
+  const row = $('#aiRow'); if (!row || !sample || !unlocked || !d.weak.length) return;
+  row.hidden = false;
+  const btn = $('#aiBtn'), stop = $('#aiStop'), note = $('#aiNote'); let ctl;
+  stop.onclick = () => ctl?.abort();
+  btn.onclick = async () => {
+    ctl = new AbortController(); btn.disabled = true; stop.hidden = false; note.textContent = 'Thinking…';
+    const prompt = `You are a careful CV editor for Indian freshers. Rewrite each CV bullet below for the job description that follows.
+Rules: keep every fact true to the original bullet; never invent numbers, tools, employers or outcomes; where a number would help, insert a short placeholder in square brackets like [X resumes] for the person to fill in; start with a strong action verb; one line each, under 25 words; use words from the job description only where the original bullet supports them.
+Reply with only a JSON array of objects {"original": string, "rewrite": string}, one per bullet, in the same order.
+
+BULLETS:
+${d.weak.map((b, i) => `${i + 1}. ${b}`).join('\n')}
+
+JOB DESCRIPTION:
+${$('#jdText').value.slice(0, 4000)}`;
+    try {
+      const out = await sample.json(prompt, {signal: ctl.signal});
+      if (!Array.isArray(out)) throw {code:'invalid_json'};
+      out.forEach((o, i) => { const n = document.querySelector(`#bul${i} [data-new]`); if (n && o && o.rewrite) n.textContent = String(o.rewrite); });
+      note.textContent = 'Done. Fill in the [X] parts with your real numbers.';
+    } catch (e) {
+      const c = e && e.code;
+      if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)) row.hidden = true;
+      else if (c === 'cancelled') note.textContent = 'Stopped.';
+      else if (c === 'rate_limited') note.textContent = 'Too many requests right now. Try again in a bit.';
+      else note.textContent = 'That didn\'t work this time. Try once more.';
+    } finally { btn.disabled = false; stop.hidden = true; }
+  };
+}
+$('#runDiag').onclick = async () => {
+  const cv = $('#cvText').value, jd = $('#jdText').value;
+  if (cv.trim().length < 60 || jd.trim().length < 60){ $('#diagOut').innerHTML = '<div class="pencil"><span class="calm">Add both your CV and the job ad first: upload the files or paste the text.</span></div>'; return; }
+  const btn = $('#runDiag'); btn.disabled = true;
+  $('#diagOut').innerHTML = '<div class="pencil"><svg viewBox="0 0 120 40" aria-hidden="true"><path d="M4 30 C 20 6, 30 34, 46 14 S 74 30, 88 12 S 110 24, 116 10" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/></svg><span class="calm">Comparing your CV with the job ad. Take a breath…</span></div>';
+  await wait(1800);
+  lastDiag = analyseCV(cv, jd); renderDiag(lastDiag, cv, false); btn.disabled = false;
+};
+
+/* ---------- follow-up writer ---------- */
+const titleCase = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+function cvName(cv){
+  const first = (cv.split('\n').map(l => l.trim()).find(Boolean) || '');
+  return /^[A-Za-z][A-Za-z.' ]{2,40}$/.test(first) && first.split(/\s+/).length <= 4 ? titleCase(first) : '';
+}
+function jdBits(jd){
+  const lines = jd.split('\n').map(l => l.trim()).filter(Boolean);
+  const role = ((lines[0] || '').split(/\s[–—-]\s|\(|\|/)[0] || '').trim();
+  const comp = ((lines[1] || '').split(',')[0] || '').replace(/\b(pvt\.?|private|ltd\.?|limited|llp)\b/gi, '').replace(/\s{2,}/g, ' ').trim();
+  const duty = (lines.find(l => /^[-•*–▪●]\s*/.test(l)) || '').replace(/^[-•*–▪●]\s*/, '').replace(/\.$/, '');
+  return {role, comp, duty};
+}
+let fuTouched = false;
+['fuRole','fuCompany','fuRec','fuDays','fuStrength','fuMe'].forEach(id => $('#' + id).addEventListener('input', () => { fuTouched = true; }));
+function prefillFollowup(cv, d){
+  if (fuTouched) return;
+  const b = jdBits($('#jdText').value);
+  $('#fuRole').value = b.role; $('#fuCompany').value = b.comp;
+  $('#fuStrength').value = d.hits.slice(0, 2).join(' and ').toLowerCase();
+  $('#fuMe').value = cvName(cv) || (mem.user ? mem.user.name : '');
+}
+function clip(s, n){ if (s.length <= n) return s; const cut = s.slice(0, n - 1); return cut.slice(0, cut.lastIndexOf(' ')) + '…'; }
+function buildFollowups(){
+  const role = $('#fuRole').value.trim() || 'the open', comp = $('#fuCompany').value.trim() || 'your company';
+  const rec = $('#fuRec').value.trim(), days = Number($('#fuDays').value), str = $('#fuStrength').value.trim();
+  const me = $('#fuMe').value.trim() || 'Your name', meFirst = me.split(/\s+/)[0];
+  const when = days >= 14 ? `${days / 7} weeks ago` : days === 7 ? 'last week' : `${days} days ago`;
+  const duty = jdBits($('#jdText').value).duty;
+  const dutyLine = duty ? ` I'm especially keen on the chance to ${duty.charAt(0).toLowerCase() + duty.slice(1)}.` : '';
+  const cv = $('#cvText').value;
+  const email = (cv.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/) || [''])[0], phone = (cv.match(/(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}/) || [''])[0];
+  const sign = [me, phone, email].filter(Boolean).join('\n');
+  const strLine = str ? ` My experience with ${str} matches what the role needs, and I'd be glad to share more.` : '';
+  return [
+    {key:'email', title:'Email to HR', note:'Send this first', subject:`Following up on my application: ${role} at ${comp}`,
+     body:`Hi ${rec || 'Hiring Team'},\n\nI applied for the ${role} role at ${comp} ${when} and wanted to follow up. I'm still very interested in the role.${dutyLine}${strLine}\n\nCould you let me know where my application stands, or if there's anything else I can send?\n\nThank you for your time.\n\nBest regards,\n${sign}`},
+    {key:'li', title:'LinkedIn note to the recruiter', note:'Fits the 300-character connection note', limit:300,
+     body:clip(`Hi ${rec || 'there'}, I applied for the ${role} role at ${comp} ${when} and I'm very keen on it.${str ? ` My ${str} experience fits it well.` : ''} Would you be open to a quick chat, or could you point me to the right person? Thanks, ${meFirst}`, 300)},
+    {key:'nudge', title:'Second nudge, if no reply in 10 days', note:'Short and polite; then move on',
+     subject:`Re: ${role} application`,
+     body:`Hi ${rec || 'Hiring Team'},\n\nJust following up on my note about the ${role} role. I understand you're busy, and I'm happy to wait. If the role has been filled, a quick reply would really help me plan my search.\n\nThanks again,\n${meFirst}`},
+  ];
+}
+let fuMsgs = null;
+function writeFollowups(fresh){
+  if (fresh || !fuMsgs) fuMsgs = buildFollowups();
+  const card = (m, locked) => `<div class="msg"><div class="msg-top"><b>${esc(m.title)}</b><small>${esc(m.note)}</small></div>
+    ${m.subject ? `<div class="subj"><b>Subject:</b> <span data-k="${m.key}-s">${esc(m.subject)}</span></div>` : ''}
+    <pre data-k="${m.key}-b">${esc(m.body)}</pre>
+    <div class="actions">${locked ? '' : `<button class="btn line small" data-copy="${m.key}">Copy</button>`}${m.limit ? `<span class="note count ${m.body.length > m.limit ? 'over' : ''}" data-k="${m.key}-c">${m.body.length}/${m.limit}</span>` : ''}</div></div>`;
+  const [e, li, nudge] = fuMsgs;
+  $('#fuOut').innerHTML = `<div class="fu-cards">${card(e, false)}</div>
+    <div class="lockwrap ${unlocked ? '' : 'locked'}" style="margin-top:14px">
+      <div class="lockcontent" style="display:grid;gap:14px"><div class="fu-cards">${card(li, !unlocked)}${card(nudge, !unlocked)}</div>
+        <div class="actions" id="fuAiRow" hidden><button class="btn ink small" id="fuAi">Make them personal with AI</button><span class="note" id="fuAiNote">Uses only your CV and the job ad. Nothing is made up.</span></div>
+      </div>
+      ${unlocked ? '' : `<div class="lockcta"><div class="envelope"><b>LinkedIn note + second nudge</b><span>Part of the full report, with every CV fix and your rewritten bullets. Free while we're in beta.</span><button class="btn small" id="fuUnlock">Unlock free during beta</button></div></div>`}
+    </div>`;
+  $('#fuOut').querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
+    const m = fuMsgs.find(x => x.key === b.dataset.copy);
+    copyText(m.subject ? `Subject: ${m.subject}\n\n${m.body}` : m.body, 'Copied. Paste it and hit send.');
+  });
+  const u = $('#fuUnlock'); if (u) u.onclick = unlockAll;
+  wireFuAI();
+}
+function wireFuAI(){
+  const row = $('#fuAiRow'); if (!row || !sample || !unlocked) return;
+  row.hidden = false;
+  const btn = $('#fuAi'), note = $('#fuAiNote');
+  btn.onclick = async () => {
+    btn.disabled = true; note.textContent = 'Thinking…';
+    const prompt = `You write short, warm, professional follow-up messages for Indian freshers who applied for a job and heard nothing back.
+Use ONLY facts found in the CV and job description below. Never invent experience, numbers, names or claims. Mention one specific, true link between the CV and the job. Plain, natural Indian English; no clichés like "I hope this email finds you well".
+Details: role "${$('#fuRole').value}", company "${$('#fuCompany').value}", recruiter first name "${$('#fuRec').value || 'unknown'}", applied ${$('#fuDays').value} days ago, applicant name "${$('#fuMe').value}".
+Reply with only JSON: {"email_subject": string, "email_body": string (under 130 words, ends with the applicant's name), "linkedin_note": string (max 290 characters), "nudge_body": string (under 70 words)}.
+
+CV:
+${$('#cvText').value.slice(0, 5000)}
+
+JOB DESCRIPTION:
+${$('#jdText').value.slice(0, 3000)}`;
+    try {
+      const o = await sample.json(prompt);
+      if (!o || typeof o !== 'object' || !o.email_body) throw {code:'invalid_json'};
+      fuMsgs[0].subject = String(o.email_subject || fuMsgs[0].subject); fuMsgs[0].body = String(o.email_body);
+      fuMsgs[1].body = clip(String(o.linkedin_note || fuMsgs[1].body), 300);
+      fuMsgs[2].body = String(o.nudge_body || fuMsgs[2].body);
+      writeFollowups(false); toast('Personalised. Read them once before sending.');
+    } catch(e){
+      const c = e && e.code;
+      if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)) row.hidden = true;
+      else note.textContent = c === 'rate_limited' ? 'Too many requests right now. Try again in a bit.' : 'That didn\'t work this time. Try once more.';
+      btn.disabled = false;
+    }
+  };
+}
+$('#fuGo').onclick = () => {
+  if (!$('#fuRole').value.trim() || !$('#fuCompany').value.trim()){ $('#fuOut').innerHTML = '<p class="note" style="margin:0">Add the role and the company first.</p>'; return; }
+  writeFollowups(true);
+};
+function copyText(text, msg){
+  const done = () => toast(msg);
+  try { navigator.clipboard.writeText(text).then(done, () => fb()); } catch(e){ fb(); }
+  function fb(){ const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast(msg); } catch(e){ toast('Select the text and copy it yourself.'); } ta.remove(); }
+}
+
+/* ---------- applications tracker ---------- */
+const STATUS = [
+  ['applied', 'Applied'], ['awaiting', 'Result awaited'], ['interview', 'Interview scheduled'], ['offer', 'Offer received'],
+  ['rejected', 'Not selected'], ['filled', 'Position filled'], ['closed', 'Applications closed'], ['ghosted', 'No response'], ['withdrawn', 'I withdrew']
+];
+const SLABEL = Object.fromEntries(STATUS);
+const ACTIVE = ['applied', 'awaiting', 'interview'];
+const ENDTAG = {offer:'good', rejected:'bad', filled:'grey', closed:'grey', ghosted:'grey', withdrawn:'grey'};
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const pad = n => String(n).padStart(2, '0');
+const isoDay = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayISO = () => isoDay(new Date());
+const parseDay = s => { const [y, m, d] = String(s).slice(0, 10).split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseDay(s); d.setDate(d.getDate() + n); return isoDay(d); };
+const daysSince = s => Math.round((parseDay(todayISO()) - parseDay(s)) / 864e5);
+const fmtDay = s => { const d = parseDay(s); return `${d.getDate()} ${MON[d.getMonth()]}`; };
+const fmtTime = iso => { const d = new Date(iso); return `${d.getDate()} ${MON[d.getMonth()]}, ${d.toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit'})}`; };
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const cleanLink = v => { v = (v || '').trim(); if (!v) return ''; return /^https?:\/\//i.test(v) ? v : 'https://' + v; };
+
+$('#tStatus').innerHTML = STATUS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+$('#tApplied').value = todayISO();
+
+const APPS_KEY = 'nopehope_apps';
+let apps = [], editing = null, tFilter = 'all', exHidden = false;
+try { exHidden = localStorage.getItem('nopehope_apps_ex') === 'hide'; } catch(e){}
+const cloud = () => LIVE && !!mem.user;
+const readLocalApps = () => { try { const v = JSON.parse(localStorage.getItem(APPS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e){ return []; } };
+const writeLocalApps = list => { try { localStorage.setItem(APPS_KEY, JSON.stringify(list)); } catch(e){} };
+const COLS = 'id,company,role,link,source,applied_on,closes_on,interview_at,status,followed_up_on,notes,updated_at';
+const Store = {
+  async list(){
+    if (cloud()){
+      const {data, error} = await sb.from('applications').select(COLS).order('applied_on', {ascending: false});
+      if (error) throw error; return data || [];
+    }
+    return readLocalApps();
+  },
+  async save(a){
+    a.updated_at = new Date().toISOString();
+    if (cloud()){ const {error} = await sb.from('applications').upsert(a); if (error) throw error; return; }
+    const list = readLocalApps(), i = list.findIndex(x => x.id === a.id);
+    if (i >= 0) list[i] = a; else list.unshift(a);
+    writeLocalApps(list);
+  },
+  async remove(id){
+    if (cloud()){ const {error} = await sb.from('applications').delete().eq('id', id); if (error) throw error; return; }
+    writeLocalApps(readLocalApps().filter(x => x.id !== id));
+  }
+};
+
+function example(){
+  const t = todayISO(), soon = new Date(); soon.setDate(soon.getDate() + 2); soon.setHours(10, 30, 0, 0);
+  return [
+    {id:'ex1', example:true, company:'Kestrel Analytics', role:'Business Analyst', link:'', source:'LinkedIn', applied_on:addDays(t, -9), closes_on:null, interview_at:null, status:'applied', followed_up_on:null, notes:''},
+    {id:'ex2', example:true, company:'Nimbus Retail', role:'Graduate Trainee – HR', link:'', source:'Company website', applied_on:addDays(t, -6), closes_on:null, interview_at:soon.toISOString(), status:'interview', followed_up_on:null, notes:'HR round on Google Meet'},
+    {id:'ex3', example:true, company:'Lumen Finserv', role:'Operations Associate', link:'', source:'Naukri', applied_on:addDays(t, -1), closes_on:addDays(t, 3), interview_at:null, status:'applied', followed_up_on:null, notes:''},
+    {id:'ex4', example:true, company:'Halden Foods', role:'Supply Chain Trainee', link:'', source:'Indeed', applied_on:addDays(t, -25), closes_on:null, interview_at:null, status:'awaiting', followed_up_on:addDays(t, -16), notes:''},
+  ];
+}
+const showingExamples = () => !apps.length && !exHidden;
+const viewList = () => (showingExamples() ? example() : apps).slice().sort((x, y) => String(y.applied_on).localeCompare(String(x.applied_on)));
+
+function eff(a){ return a.status === 'applied' && daysSince(a.applied_on) >= 3 ? 'awaiting' : a.status; }
+function hint(a){
+  const s = eff(a), d = daysSince(a.applied_on);
+  const closedNote = a.closes_on && daysSince(a.closes_on) > 0 ? ` Applications closed on ${fmtDay(a.closes_on)}, so results should follow soon.` : '';
+  if (s === 'interview'){
+    if (a.interview_at && new Date(a.interview_at) < new Date()) return {cls:'', text:'How did the interview go? Update the status so your list stays accurate.', acts:[]};
+    return {cls:'', text:a.interview_at ? `Interview on ${fmtTime(a.interview_at)}. Read the job ad again the night before, and prepare two examples from your CV.` : 'Add the interview date so it shows in "Coming up".', acts:['prep']};
+  }
+  if (s === 'offer') return {cls:'', text:'Congratulations! Before you accept, run the offer letter through the scam check.', acts:['scam']};
+  if (s === 'applied' || s === 'awaiting'){
+    if (d >= 21) return {cls:'cold', text:`No reply in ${d} days. Many companies never send a rejection, so don't wait on this one. Mark it and put your energy into new applications.${closedNote}`, acts:['ghost']};
+    if (!a.followed_up_on && d >= 7) return {cls:'warn', text:`It's been ${d} days. Now is a good time to send a short follow-up to HR.${closedNote}`, acts:['write', 'done']};
+    if (a.followed_up_on && daysSince(a.followed_up_on) >= 10) return {cls:'warn', text:`You followed up ${daysSince(a.followed_up_on)} days ago with no reply. One last polite nudge is fine; then move on.`, acts:['write']};
+    if (s === 'awaiting') return {cls:'', text:`Result awaited. Most companies reply within 2–3 weeks of applying.${a.followed_up_on ? ` You followed up on ${fmtDay(a.followed_up_on)}.` : ''}${closedNote}`, acts:[]};
+    return {cls:'', text:a.closes_on && daysSince(a.closes_on) <= 0 ? `Applications close on ${fmtDay(a.closes_on)}.` : 'Applied. We\'ll remind you when it\'s time to follow up.', acts:[]};
+  }
+  return null;
+}
+function agenda(list){
+  const items = [], t = todayISO(), horizon = addDays(t, 14);
+  list.forEach(a => {
+    const s = eff(a), who = `${a.company} · ${a.role}`;
+    if (s === 'interview' && a.interview_at){ const day = isoDay(new Date(a.interview_at)); if (day >= addDays(t, -1)) items.push({day, what:'Interview', who, extra:new Date(a.interview_at).toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit'})}); }
+    if (s === 'applied' || s === 'awaiting'){
+      if (daysSince(a.applied_on) < 21){
+        if (!a.followed_up_on) items.push({day:addDays(a.applied_on, 7), what:'Follow up with HR', who});
+        else items.push({day:addDays(a.followed_up_on, 10), what:'Last nudge', who});
+      }
+      if (a.closes_on && a.closes_on >= t) items.push({day:a.closes_on, what:'Applications close', who});
+      items.push({day:addDays(a.applied_on, 21), what:'Decide: still waiting?', who});
+    }
+  });
+  return items.filter(i => i.day <= horizon && (i.day >= t || i.what !== 'Decide: still waiting?' && i.what !== 'Applications close'))
+    .map(i => ({...i, overdue: i.day < t})).sort((x, y) => x.day.localeCompare(y.day)).slice(0, 8);
+}
+function renderTracker(){
+  const list = viewList(), ex = showingExamples();
+  const active = list.filter(a => ACTIVE.includes(eff(a)));
+  const due = list.filter(a => { const h = hint(a); return h && h.acts.includes('write'); }).length;
+  $('#tStats').innerHTML = [
+    ['Active', active.length, ''], ['Result awaited', list.filter(a => eff(a) === 'awaiting').length, ''],
+    ['Interviews', list.filter(a => eff(a) === 'interview').length, ''], ['Offers', list.filter(a => a.status === 'offer').length, ''],
+    ['Follow-ups due', due, due ? 'hot' : '']
+  ].map(([l, n, c]) => `<div class="tstat ${c}"><b>${n}</b><span>${l}</span></div>`).join('');
+  const ag = agenda(list), t = todayISO();
+  $('#tAgenda').innerHTML = ag.length ? ag.map(i => { const d = parseDay(i.day); const cls = i.overdue ? 'due' : i.day === t ? 'today' : '';
+      return `<li class="${cls}"><span class="when"><small>${i.overdue ? 'Overdue' : i.day === t ? 'Today' : MON[d.getMonth()]}</small><b>${d.getDate()}</b></span><span class="what"><b>${esc(i.what)}${i.extra ? ' · ' + esc(i.extra) : ''}</b><span>${esc(i.who)}</span></span></li>`; }).join('')
+    : '<li style="grid-template-columns:1fr"><span class="note">Nothing due in the next two weeks. Add applications and your follow-ups, interviews and deadlines will show up here.</span></li>';
+  const counts = {}; list.forEach(a => { const k = ACTIVE.includes(eff(a)) ? 'active' : 'done'; counts[k] = (counts[k] || 0) + 1; });
+  $('#tFilters').innerHTML = [['all', 'All'], ['active', 'In progress'], ['done', 'Closed']].map(([k, l]) => `<button class="fchip" data-f="${k}" aria-pressed="${tFilter === k}">${l}${k === 'all' ? ` ${list.length}` : counts[k] ? ` ${counts[k]}` : ''}</button>`).join('');
+  $('#tFilters').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { tFilter = b.dataset.f; renderTracker(); });
+  $('#tEx').innerHTML = ex ? '<div class="exbanner"><span>These are examples to show how it works. Add your first application and they disappear.</span><button id="tHideEx">Hide examples</button></div>' : '';
+  const hx = $('#tHideEx'); if (hx) hx.onclick = () => { exHidden = true; try { localStorage.setItem('nopehope_apps_ex', 'hide'); } catch(e){} renderTracker(); };
+  const shown = list.filter(a => tFilter === 'all' || (tFilter === 'active') === ACTIVE.includes(eff(a)));
+  $('#tList').innerHTML = shown.length ? shown.map(card).join('') : `<p class="note" style="margin:0">${list.length ? 'Nothing here with this filter.' : 'No applications yet. Add your first one above.'}</p>`;
+  $('#tList').querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', onAct));
+  $('#tList').querySelectorAll('select[data-id]').forEach(sel => sel.addEventListener('change', onStatus));
+  $('#tSync').textContent = cloud() ? 'Saved to your account. Open it on any device.' : LIVE ? 'Saved in this browser. Log in to keep your list safe and see it on your phone too.' : 'Preview: your list is saved in this browser only.';
+}
+function card(a){
+  const s = eff(a), d = daysSince(a.applied_on), h = hint(a), stage = {applied:0, awaiting:1, interview:2, offer:3}[s];
+  const act = {
+    write:`<button class="btn org small" data-act="write" data-id="${a.id}">Write a follow-up</button>`,
+    done:`<button class="btn line small" data-act="done" data-id="${a.id}">I've followed up</button>`,
+    ghost:`<button class="btn line small" data-act="ghost" data-id="${a.id}">Mark as no response</button>`,
+    scam:`<button class="btn line small" data-act="scam" data-id="${a.id}">Check the offer letter</button>`,
+    prep:`<button class="btn line small" data-act="prep" data-id="${a.id}">Check my CV for this role</button>`,
+  };
+  return `<article class="acard">
+    <div class="ahead"><div><h4>${esc(a.company)}</h4><div class="role">${esc(a.role)}</div></div>
+      <label class="sr" style="display:grid"><span hidden>Status</span><select data-id="${a.id}" aria-label="Status for ${esc(a.company)}">${STATUS.map(([k, l]) => `<option value="${k}"${k === s ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>
+    <div class="ameta"><span>Applied <b>${fmtDay(a.applied_on)}</b> · day ${Math.max(0, d)}</span><span>via ${esc(a.source || 'Other')}</span>${a.closes_on ? `<span>${daysSince(a.closes_on) > 0 ? 'Closed' : 'Closes'} <b>${fmtDay(a.closes_on)}</b></span>` : ''}${a.followed_up_on ? `<span>Followed up <b>${fmtDay(a.followed_up_on)}</b></span>` : ''}</div>
+    ${stage !== undefined ? `<div class="steps4" aria-hidden="true">${['Applied', 'Awaiting', 'Interview', 'Offer'].map((l, i) => `<span class="${i <= stage ? 'on' : ''}">${l}</span>`).join('')}</div>` : `<span class="endtag ${ENDTAG[s] || 'grey'}">${SLABEL[s]}</span>`}
+    ${h ? `<div class="hint ${h.cls}"><span>${esc(h.text)}</span>${h.acts.length ? `<div class="actions">${h.acts.map(k => act[k]).join('')}</div>` : ''}</div>` : ''}
+    ${a.notes ? `<div class="note" style="margin:0">${esc(a.notes)}</div>` : ''}
+    <div class="aact">${a.link ? `<a href="${esc(a.link)}" target="_blank" rel="noopener noreferrer">Open job post ↗</a>` : ''}<button data-act="edit" data-id="${a.id}">Edit</button><button class="del" data-act="del" data-id="${a.id}">Delete</button></div>
+  </article>`;
+}
+const findApp = id => viewList().find(a => a.id === id);
+async function persist(a, msg){
+  if (a.example){ toast('That\'s an example. Add your own application to try this.'); return false; }
+  try { await Store.save(a); const i = apps.findIndex(x => x.id === a.id); if (i >= 0) apps[i] = a; else apps.unshift(a); renderTracker(); if (msg) toast(msg); return true; }
+  catch(e){ toast('Couldn\'t save that. Check your connection and try again.'); return false; }
+}
+async function onStatus(e){
+  const a = findApp(e.target.dataset.id); if (!a) return;
+  if (a.example){ toast('That\'s an example. Add your own application to try this.'); renderTracker(); return; }
+  const next = {...a, status: e.target.value};
+  await persist(next, `Marked as "${SLABEL[next.status]}".`);
+  if (next.status === 'interview' && !next.interview_at) startEdit(next, true);
+}
+const delArmed = {};
+async function onAct(e){
+  const b = e.currentTarget, a = findApp(b.dataset.id), k = b.dataset.act; if (!a) return;
+  if (k === 'write'){
+    show('2'); try { history.replaceState(null, '', '#diagnose'); } catch(x){}
+    fuTouched = true; $('#fuRole').value = a.role; $('#fuCompany').value = a.company;
+    const d = daysSince(a.followed_up_on || a.applied_on), opts = [5, 7, 10, 14, 21];
+    $('#fuDays').value = String(opts.reduce((p, c) => Math.abs(c - d) < Math.abs(p - d) ? c : p, 7));
+    writeFollowups(true); $('#fuBox').scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+    if (!a.example) toast('Follow-up ready. Come back and tap "I\'ve followed up" after you send it.');
+    return;
+  }
+  if (k === 'scam'){ show('1'); try { history.replaceState(null, '', '#check'); } catch(x){} $('#scamText').value = ''; $('#scamText').focus(); toast('Upload or paste the offer letter here.'); return; }
+  if (k === 'prep'){ show('2'); try { history.replaceState(null, '', '#diagnose'); } catch(x){} $('#cvText').scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center'}); toast('Paste this job\'s ad next to your CV to prepare.'); return; }
+  if (k === 'done') return persist({...a, followed_up_on: todayISO(), status: 'awaiting'}, 'Nice. We\'ll remind you if there\'s still no reply in 10 days.');
+  if (k === 'ghost') return persist({...a, status: 'ghosted'}, 'Marked as no response. On to the next one.');
+  if (k === 'edit'){ if (a.example){ toast('That\'s an example. Add your own application to try this.'); return; } startEdit(a); return; }
+  if (k === 'del'){
+    if (a.example){ toast('That\'s an example. Use "Hide examples" to clear them.'); return; }
+    if (!delArmed[a.id]){ delArmed[a.id] = true; b.textContent = 'Tap again to delete'; setTimeout(() => { delArmed[a.id] = false; if (b.isConnected) b.textContent = 'Delete'; }, 3000); return; }
+    try { await Store.remove(a.id); apps = apps.filter(x => x.id !== a.id); if (editing === a.id) resetForm(); renderTracker(); toast('Deleted.'); }
+    catch(x){ toast('Couldn\'t delete that. Try again.'); }
+  }
+}
+const localDT = iso => { if (!iso) return ''; const d = new Date(iso); return `${isoDay(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+function startEdit(a, focusInterview){
+  editing = a.id;
+  $('#tCompany').value = a.company; $('#tRole').value = a.role; $('#tLink').value = a.link || '';
+  $('#tApplied').value = a.applied_on; $('#tSource').value = a.source || 'Other'; $('#tCloses').value = a.closes_on || '';
+  $('#tStatus').value = a.status; $('#tInterview').value = localDT(a.interview_at); $('#tNotes').value = a.notes || '';
+  $('#tFormTitle').textContent = `Edit: ${a.company}`; $('#tSave').textContent = 'Save changes'; $('#tCancel').hidden = false; $('#tErr').textContent = '';
+  $('#tForm').scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center'});
+  setTimeout(() => (focusInterview ? $('#tInterview') : $('#tCompany')).focus({preventScroll: true}), 250);
+  if (focusInterview) toast('Add the interview date and time, then save.');
+}
+function resetForm(){
+  editing = null; $('#tForm').reset(); $('#tApplied').value = todayISO(); $('#tStatus').value = 'applied';
+  $('#tFormTitle').textContent = 'Add an application'; $('#tSave').textContent = 'Add to tracker'; $('#tCancel').hidden = true; $('#tErr').textContent = '';
+}
+$('#tCancel').onclick = resetForm;
+$('#tForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const company = $('#tCompany').value.trim(), role = $('#tRole').value.trim(), applied = $('#tApplied').value || todayISO();
+  if (!company || !role){ $('#tErr').textContent = 'Add the company and the role.'; return; }
+  if (applied > todayISO()){ $('#tErr').textContent = 'The applied date can\'t be in the future.'; return; }
+  const prev = editing ? apps.find(x => x.id === editing) : null;
+  const iv = $('#tInterview').value;
+  const a = {id: editing || uid(), company: company.slice(0, 120), role: role.slice(0, 120), link: cleanLink($('#tLink').value).slice(0, 500),
+    source: $('#tSource').value, applied_on: applied, closes_on: $('#tCloses').value || null,
+    interview_at: iv ? new Date(iv).toISOString() : null, status: iv && $('#tStatus').value === 'applied' ? 'interview' : $('#tStatus').value,
+    followed_up_on: prev ? prev.followed_up_on : null, notes: $('#tNotes').value.trim().slice(0, 1000)};
+  const btn = $('#tSave'); btn.disabled = true;
+  const ok = await persist(a, editing ? 'Saved.' : `Added ${a.company}. We'll remind you when to follow up.`);
+  btn.disabled = false;
+  if (ok){ resetForm(); tFilter = 'all'; renderTracker(); }
+});
+async function loadTracker(){
+  try { apps = await Store.list(); } catch(e){ apps = []; toast('Couldn\'t load your applications. Refresh to try again.'); }
+  renderTracker();
+}
+async function trackerAuthChanged(){
+  if (cloud()){
+    const local = readLocalApps();
+    if (local.length){
+      try { const {error} = await sb.from('applications').upsert(local.map(({example, ...a}) => a)); if (!error){ writeLocalApps([]); toast(`Moved ${local.length} application${local.length > 1 ? 's' : ''} to your account.`); } }
+      catch(e){}
+    }
+  }
+  resetForm(); loadTracker();
+}
+loadTracker();
+
+/* ---------- start ---------- */
+loadScam(0);
+$('#cvText').value = SAMPLE_CV; $('#jdText').value = SAMPLE_JD;
+lastDiag = analyseCV(SAMPLE_CV, SAMPLE_JD); renderDiag(lastDiag, SAMPLE_CV, true);
+(async () => {
+  try { sample = window.claude ? await window.claude.use('sample') : null; } catch(e){ sample = null; }
+  if (sample && lastDiag) wireAI(lastDiag);
+  if (sample) wireFuAI();
+})();
+})();
+</script>
+
+</body></html>
