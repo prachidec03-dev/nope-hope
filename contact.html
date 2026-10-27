@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Contact · Nope &amp; Hope</title>
+<meta name="description" content="Contact Nope &amp; Hope for help, feedback, refunds, college licences or to report a new job scam.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,800,30;1,9..144,600,30&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="pages.css">
+</head><body>
+<header class="top"><div class="in">
+  <a class="brand" href="index.html" aria-label="Nope &amp; Hope home"><span class="w1">Nope</span><span class="amp">&amp;</span><span class="w2">Hope</span></a>
+  <nav aria-label="Site"><a href="spot.html">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html" aria-current="page">Contact</a><a class="cta" href="index.html">Check a job</a></nav>
+</div></header>
+<main><div class="in">
+
+<span class="eyebrow">Contact</span>
+<h1>Talk to a real person</h1>
+<p class="lead">Questions, a refund, a new scam you've spotted, or a college that wants Nope &amp; Hope for its students: write in and you'll get a reply within 2 working days.</p>
+<div class="paper">
+<form id="contactForm" novalidate>
+  <p hidden><label>Leave this empty <input name="bot-field"></label></p>
+  <label for="cName">Your name<input id="cName" name="name" required autocomplete="name"></label>
+  <label for="cEmail">Email<input id="cEmail" name="email" type="email" required autocomplete="email"></label>
+  <label for="cTopic">What's it about?
+    <select id="cTopic" name="topic"><option>A question about my check or report</option><option>Payment or refund</option><option>Report a new scam</option><option>College or placement cell licence</option><option>Something else</option></select></label>
+  <label for="cMsg">Message<textarea id="cMsg" name="message" required></textarea></label>
+  <button type="submit">Send message</button>
+  <div class="ok" id="cOk" role="status"></div>
+</form>
+</div>
+<h2>Other ways to reach us</h2>
+<p>Email: prachidec03@gmail.com</p>
+<h2>Lost money to a job scam?</h2>
+<p>Call <b>1930</b>, India's national cyber crime helpline, or file a complaint at cybercrime.gov.in as soon as possible. Quick reports give the best chance of stopping the money.</p>
+</div></main>
+<footer><div class="in"><span>Nope &amp; Hope · made in India for freshers</span>
+<nav aria-label="Footer"><a href="spot.html">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a><a href="refunds.html">Refunds &amp; cancellation</a><a href="delivery.html">Delivery policy</a></nav></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+  var cfg = window.NH_CONFIG || {}, sb = null;
+  try { if (cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase) sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey); } catch(e){ sb = null; }
+  var f = document.getElementById('contactForm'), ok = document.getElementById('cOk'), btn = f.querySelector('button[type=submit]');
+  f.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if (!f.checkValidity()){ f.reportValidity(); return; }
+    if (f.querySelector('[name=bot-field]').value) return;
+    if (!sb){ ok.textContent = 'Messages aren\'t switched on yet. Please email prachidec03@gmail.com instead.'; return; }
+    btn.disabled = true; ok.textContent = 'Sending…';
+    var el = f.elements; var row = { name: el['name'].value.trim(), email: el['email'].value.trim(), topic: el['topic'].value, message: el['message'].value.trim() };
+    try {
+      var r = await sb.from('messages').insert(row);
+      if (r.error) throw r.error;
+      f.reset(); ok.textContent = 'Thanks! We\'ll reply within 2 working days.';
+    } catch(err){ ok.textContent = 'That didn\'t send. Please email prachidec03@gmail.com instead.'; }
+    btn.disabled = false;
+  });
+})();
+</script></body></html>

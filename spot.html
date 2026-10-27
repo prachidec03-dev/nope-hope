@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spot the Scam · Nope &amp; Hope</title>
+<meta name="description" content="Spot the Scam: a daily 1-minute game. Three job messages, is each one a scam or real? Keep your streak.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,800,30;1,9..144,600,30&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="pages.css">
+</head><body>
+<header class="top"><div class="in">
+  <a class="brand" href="index.html" aria-label="Nope &amp; Hope home"><span class="w1">Nope</span><span class="amp">&amp;</span><span class="w2">Hope</span></a>
+  <nav aria-label="Site"><a href="spot.html" aria-current="page">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a><a class="cta" href="index.html">Check a job</a></nav>
+</div></header>
+<main><div class="in">
+<style>
+/* Spot the Scam: a daily 3-card game. Cards look like the message itself; verdict lands as a stamp. */
+:root{--good:#2C7A4B;--good-soft:#DDF1E4;--bad-soft:#FBE0DC;--card:#FFFFFF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--good:#6CCB94;--good-soft:#15301F;--bad-soft:#3A1E1A;--card:#1B212B}}
+:root[data-theme="dark"]{--good:#6CCB94;--good-soft:#15301F;--bad-soft:#3A1E1A;--card:#1B212B}
+.game{display:grid;gap:18px;max-width:720px}
+.g-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px 24px}
+.g-head h1{margin:0}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:grid;gap:0;min-width:74px;text-align:center}
+.stat b{font-family:var(--f-display);font-size:1.4rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.dots{display:flex;gap:8px;align-items:center}
+.dots i{width:30px;height:8px;border-radius:999px;background:var(--line)}
+.dots i.d-ok{background:var(--good)} .dots i.d-no{background:var(--red)} .dots i.d-now{background:var(--blu)}
+.dots span{margin-left:6px;font-size:.88rem;color:var(--muted)}
+.mcard{position:relative;background:var(--card);border-radius:18px;padding:18px 20px 20px;box-shadow:0 18px 34px -24px rgba(0,0,0,.45);border:1px solid var(--line);display:grid;gap:12px;overflow:hidden}
+.mtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:4px 10px;background:var(--blu-soft);color:var(--blu)}
+.from{font-size:.9rem;color:var(--muted);word-break:break-all}
+.mtext{white-space:pre-wrap;word-break:break-word;font-size:1rem;line-height:1.6;margin:0}
+.stamp{position:absolute;right:18px;top:16px;font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:.08em;text-transform:uppercase;border:4px solid currentColor;border-radius:10px;padding:4px 12px;transform:rotate(-10deg);opacity:0;pointer-events:none}
+.stamp.show{animation:stamp .4s cubic-bezier(.2,1.6,.4,1) forwards}
+.stamp.nope{color:var(--red)} .stamp.legit{color:var(--good)}
+@keyframes stamp{0%{opacity:0;transform:scale(2) rotate(-16deg)}100%{opacity:.9;transform:scale(1) rotate(-10deg)}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pick{justify-self:stretch;width:100%;border:0;border-radius:14px;padding:16px 12px;font:inherit;font-weight:800;font-size:1.15rem;cursor:pointer;display:grid;gap:2px;transition:transform .12s}
+.pick small{font-weight:500;font-size:.82rem;opacity:.85}
+.pick:hover{transform:translateY(-2px)}
+.pick:disabled{cursor:default;transform:none;opacity:.5}
+.pick.nope{background:var(--red);color:#fff}
+.pick.legit{background:var(--good);color:#fff}
+.reveal{border-radius:14px;padding:16px 18px;display:grid;gap:10px}
+.reveal.right{background:var(--good-soft)} .reveal.wrong{background:var(--bad-soft)}
+.reveal h2{margin:0;font-size:1.3rem}
+.reveal ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.next{justify-self:start;background:var(--ink);color:var(--paper)}
+.end{display:grid;gap:16px}
+.score{font-family:var(--f-display);font-weight:800;font-size:clamp(2.6rem,9vw,4rem);line-height:1;letter-spacing:-.03em}
+.endrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,260px);gap:20px;align-items:start}
+.cardimg{width:100%;max-width:260px;border-radius:14px;box-shadow:0 16px 30px -18px rgba(0,0,0,.5)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btnrow button,.btnrow a{font:inherit;font-weight:600;border-radius:10px;padding:11px 16px;cursor:pointer;text-decoration:none;border:0}
+.b-ink{background:var(--ink);color:var(--paper)} .b-line{background:transparent;color:var(--ink);border:1.5px solid var(--line)!important} .b-blu{background:var(--blu);color:#fff}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.howto{background:var(--paper);border-radius:14px;padding:16px 18px}
+.howto ol{margin:6px 0 0;padding-left:20px}
+.note{font-size:.86rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--note);color:var(--on-note);padding:11px 18px;border-radius:8px;font-weight:600;opacity:0;transition:all .25s;pointer-events:none;z-index:30;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:640px){.endrow{grid-template-columns:minmax(0,1fr)}.cardimg{max-width:220px}}
+@media (prefers-reduced-motion:reduce){.stamp.show{animation:none;opacity:.9}.pick:hover{transform:none}}
+</style>
+
+<div class="game" id="game">
+  <div class="g-head">
+    <div><span class="eyebrow">Daily game</span><h1 id="gTitle">Spot the Scam</h1></div>
+    <div class="stats" aria-label="Your stats">
+      <div class="stat"><b id="sStreak">0</b><span>Streak</span></div>
+      <div class="stat"><b id="sBest">0</b><span>Best</span></div>
+      <div class="stat"><b id="sAcc">–</b><span>Accuracy</span></div>
+    </div>
+  </div>
+  <div id="stage" aria-live="polite"></div>
+  <div class="howto">
+    <b>How to play</b>
+    <ol>
+      <li>Read each job message: WhatsApp, email, SMS, LinkedIn or Telegram.</li>
+      <li>Tap <b>Nope</b> if it's a scam, or <b>Legit</b> if it's real hiring.</li>
+      <li>Three messages a day. Keep your streak going, and send your score to friends.</li>
+    </ol>
+    <p class="note" style="margin:8px 0 0">All messages are written for this game, based on common job-scam patterns in India. Companies and people in them are made up.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script>
+(function(){
+const BRAND = 'Nope & Hope';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+
+const BANK = [
+ {ch:'WhatsApp', from:'+91 8XXXX XXX47', scam:true, text:'Hi dear, I am Neha from TalentHub Placements. Your profile is selected for Data Entry work from home. Earn ₹25,000/month, only 2 hrs daily. Registration ₹999 fully refundable. Pay to UPI talenthub.placements@ybl to confirm your slot today.', clues:['A "refundable" registration fee. Real employers never charge you to join.','Payment to a personal UPI ID, not a company account.','Big pay for 2 hours of data entry, with no interview.']},
+ {ch:'Telegram', from:'@HR_Riya_Official', scam:true, text:'Part-time job! Like YouTube videos and earn ₹150 per like. Daily income ₹3,000–₹5,000. Complete 3 free tasks first, then join our prepaid merchant task for higher commission 💰', clues:['"Like videos for money" is a task scam. The first small payouts are bait.','"Prepaid task" means you pay first. That money never comes back.','Recruited on Telegram with no company name at all.']},
+ {ch:'Email', from:'hr.globalinfotech.careers@gmail.com', scam:true, text:'Dear Candidate,\nCongratulations! You are selected as Junior Analyst at Global Infotech Solutions with CTC 7.2 LPA. No interview required. To process your joining, pay ₹4,500 for laptop and background verification within 24 hours.', clues:['Selected with no interview.','A Gmail address instead of a company email domain.','Asked to pay for a laptop and background verification. Employers pay for these, not you.']},
+ {ch:'SMS', from:'VK-JOBALR', scam:true, text:'Dear candidate, you are shortlisted for Railway Group D posts. Direct joining, no exam. Pay ₹15,000 processing fee to our agent. Limited seats, reply YES now.', clues:['Government jobs only come through official exams and notices.','"Direct joining, no exam" for a government post is impossible.','A large "processing fee" to an agent.']},
+ {ch:'LinkedIn', from:'"Emma Clarke, Talent Partner"', scam:true, text:'Congrats! You have been selected for a remote Analyst role at a US firm, $3,000/month. The interview will be a text chat on Telegram. Please share your Aadhaar, PAN and bank details for onboarding.', clues:['A "text chat interview" on Telegram. Real interviews are calls or video.','ID and bank details asked before any real interview or offer.','A high dollar salary for a fresher with no process.']},
+ {ch:'Email', from:'careers@nimbus-retail-hr.com', scam:true, text:'Your interview with Nimbus Retail is scheduled for Monday. To be eligible, please purchase the Interview Preparation Kit (₹1,499) from our training partner using the link below.', clues:['A look-alike domain: "nimbus-retail-hr.com" instead of the company\'s real domain.','You must buy something to be "eligible" for an interview.']},
+ {ch:'SMS', from:'+91 7XXXX XXX09', scam:true, text:'Your job application is approved! Click bit.ly/joinletter-2 to verify your PAN and receive your joining letter. Share the OTP you receive to complete verification.', clues:['Never share an OTP. No hiring step needs one.','A shortened link hides where it really goes.','Approved for which job? No company or role named.']},
+ {ch:'WhatsApp', from:'+91 9XXXX XXX63', scam:true, text:'Hello ma\'am, HR from Prime BPO Services. Your offer letter is attached. Training fee of ₹7,500 will be adjusted from your first salary, but pay ₹2,000 security deposit now to block your seat.', clues:['A "security deposit" to block a seat.','Training fees for a job. Companies pay to train their own staff.']},
+ {ch:'Instagram', from:'@glowup.careers', scam:true, text:'Earn ₹50K/month as our brand ambassador 🔥 Just buy the starter kit for ₹2,999 and add 5 friends to your team. Work from your phone!', clues:['You pay for a "starter kit" and recruit friends. That\'s a pyramid scheme, not a job.','No company, no role, no interview.']},
+ {ch:'Email', from:'hiring.zentrasolutions@outlook.com', scam:true, text:'We found your resume on Naukri. You are selected as HR Executive at Zentra Solutions. Kindly reply with your bank account details and a photo of your Aadhaar so we can open your salary account before joining. Offer valid for 24 hours only.', clues:['Bank and Aadhaar details asked by email, before joining.','A free Outlook address, not a company domain.','A 24-hour deadline to rush you.']},
+ {ch:'Telegram', from:'@CryptoCareersDesk', scam:true, text:'Hiring trading assistants. No experience needed. Deposit 50 USDT to activate your work account and earn 8% daily returns on every task.', clues:['A deposit to "activate" a job.','Crypto and guaranteed daily returns. Classic investment scam.']},
+ {ch:'WhatsApp', from:'+91 6XXXX XXX18', scam:true, text:'Work from home: pack pens and candles at home, earn ₹15,000/week. Pay ₹1,200 for the raw material kit, we deliver tomorrow. Payment on every packet.', clues:['You pay for a "kit" before earning anything.','Home packing jobs with high weekly pay are a long-running scam.']},
+ {ch:'Email', from:'internship.cell.india@gmail.com', scam:true, text:'Government-recognised internship under a national skill scheme. Certificate guaranteed. Pay ₹499 registration through this form: forms.gle/xxxx. Seats closing tonight!!', clues:['A Gmail address claiming to be a government scheme.','A fee for an internship certificate.','Urgency and exclamation marks.']},
+ {ch:'Email', from:'talent@nimbusretail.in', scam:false, text:'Hi Riya,\nThanks for applying for the Graduate Trainee – HR role at Nimbus Retail. You\'ve been shortlisted for an online assessment, followed by an HR round and a final interview. Please pick a slot next week by replying to this email. The role is also listed on careers.nimbusretail.in. There is no fee at any stage.', clues:['Sent from the company\'s own domain.','A clear selection process: assessment, HR round, final interview.','States there is no fee, and points you to the official careers page.']},
+ {ch:'LinkedIn', from:'Arjun Mehra · Recruiter at Kestrel Analytics', scam:false, text:'Hi Riya, I\'m Arjun, a recruiter at Kestrel Analytics. Your profile looks like a good fit for our Business Analyst (0–2 yrs) opening in Pune. Could we do a 15-minute call this week? The job post is on our careers page if you\'d like to read it first.', clues:['A specific role, level and city.','Starts with a short call, and asks for nothing.','Points you to the official job post to check.']},
+ {ch:'Email', from:'no-reply@lumenfinserv.com', scam:false, text:'Thank you for applying for the Operations Associate role at Lumen Finserv. Our team will review your application within 2 weeks. You can check your status any time in your candidate account.', clues:['A normal application acknowledgement.','Company domain, realistic timeline, nothing asked of you.']},
+ {ch:'SMS', from:'VM-ORBITL', scam:false, text:'Interview confirmed: Thu 10:30 AM, HR round on Google Meet with Priya S. The link is in your email. Reply 1 to confirm. – Orbit Logistics HR', clues:['Confirms an interview you already know about.','Named interviewer, time and format. No money or personal details asked.']},
+ {ch:'Email', from:'hr@fieldstone.in', scam:false, text:'Dear Riya,\nWe\'re pleased to offer you the Graduate Trainee role at a CTC of ₹4.8 LPA, joining on 3 February. Our verification partner will contact you for background checks, and you can upload documents on our HR portal. There are no fees at any stage.', clues:['Offer after a process, from the company domain.','Documents go through the company\'s HR portal, not WhatsApp.','Clearly says there are no fees.']},
+ {ch:'WhatsApp', from:'Placement Cell – College group', scam:false, text:'Hi all, Fieldstone\'s pre-placement talk is at 3 PM in Seminar Hall 2. Register on the college placement portal by 1 PM to be eligible. Carry a printed CV. – Placement Cell', clues:['Comes from your own college placement cell.','Registration through the college portal, free.']},
+ {ch:'Email', from:'hiring@brightlanemedia.com', scam:false, text:'Hi Riya, thanks for your time on Tuesday. As the next step for the Marketing Intern role, please find a short take-home assignment attached. Submit within 5 days, and reply here if anything is unclear.', clues:['Follows a conversation you actually had.','A work assignment is a normal hiring step. Nothing to pay.']},
+ {ch:'LinkedIn', from:'Sana Qureshi · HR Business Partner at Halden Foods', scam:false, text:'Hi Riya, we\'d love to schedule your final round with our Operations Head. Please share two slots next week. We\'ll reimburse your travel to our Gurugram office.', clues:['Final round after earlier rounds.','The company pays for your travel; you pay nothing.']},
+ {ch:'Email', from:'verification@fieldstone.in', scam:false, text:'Hi Riya, as part of joining, our verification vendor will email you a secure link to upload your documents. We will never ask you for payment or an OTP at any point.', clues:['Background checks are normal after an offer.','Warns you that they never ask for money or OTPs.']},
+ {ch:'Email', from:'campus@kestrelanalytics.com', scam:false, text:'Thank you for attending our campus drive. Unfortunately, we won\'t be moving forward with your application this time. We\'ll keep your profile for future openings and wish you the best.', clues:['A polite rejection from the company domain. Annoying, but very real.']},
+ {ch:'Email', from:'careers@halden.in', scam:false, text:'Hi Riya, we received your application for the Supply Chain Trainee role. As a next step, please complete a 30-minute online aptitude test by Friday using the link in your candidate portal.', clues:['A test inside the company\'s own candidate portal.','A clear deadline, but no pressure tactics and no payment.']},
+];
+
+const EPOCH = Date.UTC(2026, 9, 27);
+const IST = 5.5 * 3600e3;
+const dayIdx = () => Math.floor((Date.now() + IST - EPOCH) / 864e5);
+const SC = BANK.map((m, i) => m.scam ? i : -1).filter(i => i >= 0), LG = BANK.map((m, i) => m.scam ? -1 : i).filter(i => i >= 0);
+function pickDay(d){
+  const a = SC[(d * 2) % SC.length], c = SC[(d * 2 + 1) % SC.length], b = LG[(d * 5) % LG.length];
+  const set = [a, b, c], r = ((d % 3) + 3) % 3;
+  return set.slice(r).concat(set.slice(0, r));
+}
+function pickPractice(){ const all = BANK.map((_, i) => i); for (let i = all.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; } return all.slice(0, 3); }
+
+let st = {days:{}, streak:0, best:0, last:-99, played:0, right:0, total:0};
+try { const v = JSON.parse(localStorage.getItem('nh_spot') || 'null'); if (v) st = Object.assign(st, v); } catch(e){}
+const save = () => { try { localStorage.setItem('nh_spot', JSON.stringify(st)); } catch(e){} };
+
+const D = dayIdx(), NUM = D + 1;
+if (st.last < D - 1) st.streak = 0;
+function stats(){
+  $('#sStreak').textContent = st.streak; $('#sBest').textContent = st.best;
+  $('#sAcc').textContent = st.total ? Math.round(st.right / st.total * 100) + '%' : '–';
+}
+$('#gTitle').textContent = `Spot the Scam #${NUM}`;
+
+let round = null;
+function start(practice){
+  round = {practice, ids: practice ? pickPractice() : pickDay(D), i: 0, res: []};
+  card();
+}
+function dots(){
+  return `<div class="dots" aria-label="Progress">${round.ids.map((_, k) => `<i class="${k < round.res.length ? (round.res[k] ? 'd-ok' : 'd-no') : k === round.i ? 'd-now' : ''}"></i>`).join('')}<span>${round.practice ? 'Practice' : 'Message'} ${Math.min(round.i + 1, 3)} of 3</span></div>`;
+}
+function card(){
+  const m = BANK[round.ids[round.i]];
+  $('#stage').innerHTML = `${dots()}
+    <div class="mcard" style="margin-top:12px">
+      <div class="mtop"><span class="chip">${esc(m.ch)}</span><span class="from">From: ${esc(m.from)}</span></div>
+      <p class="mtext">${esc(m.text)}</p>
+      <span class="stamp" id="stamp"></span>
+    </div>
+    <div class="choices" style="margin-top:14px">
+      <button class="pick nope" id="pNope">Nope<small>It's a scam</small></button>
+      <button class="pick legit" id="pLegit">Legit<small>Real hiring</small></button>
+    </div>
+    <div id="rev"></div>`;
+  $('#pNope').onclick = () => answer(true);
+  $('#pLegit').onclick = () => answer(false);
+}
+const RIGHT = ['Sharp eye.', 'Spot on.', 'You got it.', 'Nicely caught.'];
+const WRONG = ['This one got you.', 'Tricky one.', 'Not quite.'];
+function answer(saidScam){
+  const m = BANK[round.ids[round.i]], ok = saidScam === m.scam;
+  round.res.push(ok);
+  $('#pNope').disabled = true; $('#pLegit').disabled = true;
+  const sp = $('#stamp'); sp.textContent = m.scam ? 'Nope' : 'Legit'; sp.className = 'stamp show ' + (m.scam ? 'nope' : 'legit');
+  const line = (ok ? RIGHT : WRONG)[Math.floor(Math.random() * (ok ? RIGHT : WRONG).length)];
+  $('#rev').innerHTML = `<div class="reveal ${ok ? 'right' : 'wrong'}" style="margin-top:14px">
+      <h2>${line} ${m.scam ? 'It\'s a scam.' : 'It\'s real.'}</h2>
+      <b>${m.scam ? 'What gave it away' : 'Why it checks out'}</b>
+      <ul>${m.clues.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+      <button class="btn next" id="nextBtn" style="border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;cursor:pointer">${round.i < 2 ? 'Next message →' : 'See my score →'}</button>
+    </div>`;
+  $('#nextBtn').focus({preventScroll:true});
+  $('#nextBtn').onclick = () => { round.i++; if (round.i < 3) card(); else finish(); };
+  const dd = $('#stage').querySelector('.dots'); if (dd) dd.outerHTML = dots();
+}
+function finish(){
+  const score = round.res.filter(Boolean).length;
+  if (!round.practice){
+    if (!st.days[NUM]){
+      st.days[NUM] = round.res; st.played++; st.right += score; st.total += 3;
+      st.streak = st.last === D - 1 ? st.streak + 1 : 1; st.last = D; st.best = Math.max(st.best, st.streak);
+      save();
+    }
+  } else { st.right += score; st.total += 3; save(); }
+  stats(); end(round.res, round.practice);
+}
+const squares = res => res.map(r => r ? '🟩' : '🟥').join('');
+const site = () => (window.NH_CONFIG && window.NH_CONFIG.siteUrl) || '';
+function shareText(res){
+  const s = res.filter(Boolean).length;
+  return `Spot the Scam #${NUM} ${squares(res)} ${s}/3${st.streak > 1 ? ` · ${st.streak}-day streak` : ''}\nCan you spot fake job offers? Play on ${BRAND}${site() ? ' ' + site() : ''}`;
+}
+function makeCard(res){
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+  const x = c.getContext('2d'), s = res.filter(Boolean).length;
+  x.fillStyle = '#2453C2'; x.fillRect(0, 0, 1080, 1350);
+  x.fillStyle = 'rgba(255,255,255,.08)'; for (let i = 0; i < 9; i++){ x.beginPath(); x.arc(980 - i * 40, 160 + i * 30, 240 - i * 20, 0, 7); x.fill(); }
+  x.fillStyle = '#FFE873'; x.font = '700 64px Caveat, "Segoe Print", cursive'; x.fillText('Spot the Scam #' + NUM, 90, 220);
+  x.fillStyle = '#FFFFFF'; x.font = '800 190px Fraunces, Georgia, serif'; x.fillText(s + '/3', 90, 470);
+  x.font = '600 52px "Instrument Sans", Arial, sans-serif'; x.fillText(s === 3 ? 'job scams spotted. Not today, scammers.' : s === 2 ? 'spotted. Almost a pro.' : 'spotted. Scammers are sneaky.', 90, 560);
+  res.forEach((r, i) => { x.fillStyle = r ? '#6CCB94' : '#FF7D70'; const X = 90 + i * 200; x.beginPath(); if (x.roundRect) x.roundRect(X, 660, 170, 170, 28); else x.rect(X, 660, 170, 170); x.fill();
+    x.fillStyle = '#16213F'; x.font = '800 88px "Instrument Sans", Arial, sans-serif'; x.fillText(r ? '✓' : '✗', X + 52, 778); });
+  x.fillStyle = '#FFFFFF'; x.font = '600 48px "Instrument Sans", Arial, sans-serif';
+  if (st.streak > 0) x.fillText(st.streak + '-day streak', 90, 960);
+  x.font = '500 40px "Instrument Sans", Arial, sans-serif'; x.fillStyle = 'rgba(255,255,255,.85)'; x.fillText('Can you beat me?', 90, 1030);
+  x.fillStyle = '#FFFFFF'; x.font = '800 70px Fraunces, Georgia, serif'; x.fillText(BRAND, 90, 1220);
+  x.font = '500 34px "Instrument Sans", Arial, sans-serif'; x.fillStyle = 'rgba(255,255,255,.8)'; x.fillText(site() || 'Check job messages before you reply', 90, 1275);
+  return c.toDataURL('image/png');
+}
+function countdown(el){
+  const tick = () => { const now = Date.now() + IST, next = (Math.floor(now / 864e5) + 1) * 864e5, ms = next - now;
+    const h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4), sec = Math.floor(ms % 6e4 / 1e3);
+    if (el.isConnected) el.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; else clearInterval(iv); };
+  const iv = setInterval(tick, 1000); tick();
+}
+function end(res, practice){
+  const s = res.filter(Boolean).length;
+  $('#stage').innerHTML = `<div class="end">
+    <div class="endrow">
+      <div style="display:grid;gap:12px;min-width:0">
+        <div class="score">${s}/3 <span style="font-size:.5em">${squares(res)}</span></div>
+        <p style="margin:0" class="lead">${s === 3 ? 'Perfect. Scammers would hate you.' : s === 2 ? 'Nearly perfect. One slipped past.' : 'Scammers are good at this. Now you know their tricks.'}</p>
+        ${practice ? '<p class="note" style="margin:0">Practice rounds don\'t count toward your streak.</p>' : `<p style="margin:0">Next daily round in <span class="timer" id="cd"></span></p>`}
+        <div class="btnrow">
+          <button class="b-blu" id="copyRes">Copy my result</button>
+          <button class="b-line" id="again">Practice 3 more</button>
+          <a class="b-ink" href="index.html">Check a real message</a>
+        </div>
+      </div>
+      <figure style="margin:0;display:grid;gap:6px;justify-items:start"><img class="cardimg" id="cimg" alt="Your Spot the Scam score card: ${s} out of 3"><figcaption class="note">Long-press or right-click to save, then post it to your story.</figcaption></figure>
+    </div></div>`;
+  if (!practice) countdown($('#cd'));
+  const draw = () => { try { $('#cimg').src = makeCard(res); } catch(e){ $('#cimg').closest('figure').hidden = true; } };
+  (document.fonts && document.fonts.ready) ? document.fonts.ready.then(draw) : draw();
+  $('#copyRes').onclick = () => {
+    const t = shareText(res);
+    try { navigator.clipboard.writeText(t).then(() => toast('Copied! Paste it in your group chat.'), fb); } catch(e){ fb(); }
+    function fb(){ const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Copied! Paste it in your group chat.'); } catch(e){ toast('Select and copy your result manually.'); } ta.remove(); }
+  };
+  $('#again').onclick = () => start(true);
+}
+
+stats();
+if (st.days[NUM]) end(st.days[NUM], false); else start(false);
+})();
+</script>
+
+</div></main>
+<footer><div class="in"><span>Nope &amp; Hope · made in India for freshers</span>
+<nav aria-label="Footer"><a href="spot.html">Spot the Scam</a><a href="about.html">About</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a><a href="refunds.html">Refunds &amp; cancellation</a><a href="delivery.html">Delivery policy</a></nav></div></footer>
+</body></html>
