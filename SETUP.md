@@ -82,8 +82,69 @@ The anon key is meant to be public. The database rules you ran in 2b decide what
 - **Free plan pausing:** free Supabase projects pause after a week with no activity. Open the site once a week until you have regular visitors.
 - **Phone sign-in:** OTP by SMS in India needs DLT registration under TRAI rules. Email codes avoid this; add phone sign-in later.
 
-## Part 3: Payments (later, when the ₹99 report goes live)
+## Part 3: Microsoft Clarity (heatmaps and recordings)
 
-1. **Razorpay account:** sign up at razorpay.com with your PAN, bank account and address proof. Give your live site address; the Pricing, Contact, Terms, Privacy, Refunds and Delivery pages are already there.
-2. **Move hosting first:** GitHub Pages doesn't allow sites mainly used to sell things or run a paid service. When payments start, move the same files to Netlify or Cloudflare Pages (both free). It takes about 10 minutes and your domain moves with it.
-3. **Unlocking reports safely:** use a Razorpay Payment Link or Payment Button for checkout, and a Supabase Edge Function that receives Razorpay's "payment captured" webhook and records the purchase against the user. The website then checks that record before unlocking the full report. This part needs a small amount of server code; ask Claude to build it when you reach this step.
+1. Upload the new files to GitHub (all of them **except `config.js`**, which already has your keys).
+2. On GitHub, open `analytics.js`, click the pencil, and replace `PASTE_YOUR_CLARITY_ID_HERE` with your Clarity project ID (Clarity → Settings → Overview → Project ID, about 10 letters and numbers). Commit.
+3. In Clarity, go to **Settings → Masking** and choose **Strict**, so recordings never show the CVs and messages people paste.
+4. Open nopeandhope.com and click around. Data shows up in Clarity within about 2 hours.
+
+Every page already loads `analytics.js`, so this one line covers the whole site.
+
+## Part 4: ₹99 payments with Razorpay
+
+How it works: a signed-in person clicks **Unlock full report · ₹99** → Razorpay's checkout opens (UPI, cards, net banking, wallets) → a Supabase function checks the payment is genuine and records it → the report unlocks. The same report reopens free from the same account later. The worked example stays fully open so people can see what they're paying for.
+
+### 4a. Razorpay account
+1. Sign up at razorpay.com with your PAN, bank account and address proof. For the website, give `https://nopeandhope.com`. The pricing, terms, privacy, refunds, delivery and contact pages they check are already on the site.
+2. KYC approval takes a few days. You can do everything below in **Test mode** meanwhile.
+3. Switch the dashboard to **Test mode** (toggle at the top), go to **Account & Settings → API Keys → Generate Key**. Copy the **Key ID** (`rzp_test_…`) and the **Key Secret**. The secret is shown only once; keep it somewhere private and never put it in any website file.
+
+### 4b. Supabase database
+SQL Editor → New query → paste all of `supabase-payments.sql` → **Run**. It should say "Success".
+
+### 4c. Supabase functions (two of them, both in the browser)
+1. Supabase → **Edge Functions → Deploy a new function → Via Editor**.
+2. Name it exactly `razorpay`. Delete the sample code, paste everything from `supabase/razorpay/index.ts`, and click **Deploy**. Leave JWT verification **on** for this one.
+3. Do the same again with the name `razorpay-webhook`, pasting `supabase/razorpay-webhook/index.ts`. After it deploys, open its settings and turn **off** "Verify JWT" (Razorpay can't sign in, the function checks Razorpay's signature instead).
+4. Go to **Edge Functions → Secrets** and add three:
+   - `RAZORPAY_KEY_ID` = your Key ID
+   - `RAZORPAY_KEY_SECRET` = your Key Secret
+   - `RAZORPAY_WEBHOOK_SECRET` = a long password you make up (letters and numbers, 20+ characters)
+
+### 4d. Razorpay webhook (the safety net)
+If someone pays and closes the tab straight away, this still records the payment.
+1. Razorpay → **Account & Settings → Webhooks → Add New Webhook**.
+2. Webhook URL: `https://rmkrcibqmunpgrgypfkh.supabase.co/functions/v1/razorpay-webhook`
+3. Secret: the same made-up password as `RAZORPAY_WEBHOOK_SECRET`.
+4. Active events: tick only **order.paid**. Save.
+
+### 4e. Switch it on and test
+1. On GitHub, open `config.js`, click the pencil, and add a `payments: true` line, so it looks like this (keep your real URL and key):
+
+   ```js
+   window.NH_CONFIG = {
+     supabaseUrl: 'https://rmkrcibqmunpgrgypfkh.supabase.co',
+     supabaseAnonKey: 'eyJ...your key...',
+     siteUrl: 'nopeandhope.com',
+     payments: true
+   };
+   ```
+   Note the comma after `'nopeandhope.com'`. Commit.
+2. On nopeandhope.com: log in, check your CV against a job ad, click **Unlock full report · ₹99**. In test mode, pay with UPI ID `success@razorpay` (or Razorpay's test card from their docs). The report should unlock.
+3. Check Supabase → Table Editor → `purchases`: one row with `amount 9900`.
+4. Until KYC is approved, set `payments: false` again so visitors don't see a test checkout.
+
+### 4f. Go live (after KYC approval)
+1. Switch Razorpay to **Live mode** → API Keys → Generate Key.
+2. In Supabase → Edge Functions → Secrets, replace `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` with the live ones.
+3. Add the same webhook again in **Live mode** (webhooks are separate for test and live).
+4. Set `payments: true` in `config.js`. You're charging ₹99.
+
+### Refunds
+Refund from Razorpay → Transactions → Payments → open the payment → **Refund**. The refunds page promises 5–7 working days.
+
+### Good to know
+- Money reaches your bank on Razorpay's settlement cycle (usually T+2 working days), minus their fee of about 2%.
+- The full report is worked out in the visitor's browser, so a very technical person could dig it out without paying. For a ₹99 product that's an acceptable trade-off; moving the report to the server would close it.
+- GitHub Pages' rules say it isn't meant to host an online business. Payments happen on Razorpay, and most of the site is free tools, so the risk is low, but if GitHub ever objects, the same files move to Cloudflare Pages in about 10 minutes.

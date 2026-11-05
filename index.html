@@ -348,6 +348,10 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.circled path,.pencil path{stroke-dashoffset:0}}
 </style>
 
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2453C2">
 </head><body>
 <div class="wrap">
   <header class="top">
@@ -376,7 +380,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
     </button>
     <button class="ftab" data-m="2" role="tab" id="tab-diagnose" aria-controls="panel-diagnose" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h9l4 4v15H6z"/><path d="M9 11h7M9 14.5h7M9 18h4"/><path d="M15 2.5v4h4"/></svg>
-      <span><b>Why no replies?</b><small>The hope check · ₹99 full report</small></span>
+      <span><b>Why no replies?</b><small id="hopeSub">The hope check · full report free in beta</small></span>
     </button>
     <button class="ftab" data-m="3" role="tab" id="tab-track" aria-controls="panel-track" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/><path d="M8 14l2 2 4-4"/></svg>
@@ -385,7 +389,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
   </div>
 
   <!-- MODULE 1 -->
-  <section class="panel m1" id="panel-check" role="tabpanel" aria-labelledby="tab-check">
+  <section class="panel m1" id="panel-check" data-clarity-mask="True" role="tabpanel" aria-labelledby="tab-check">
     <div class="intro">
       <h2>Got a job message that feels off?</h2>
       <p>Paste it exactly as you got it. We mark every warning sign and tell you what to do next.</p>
@@ -423,7 +427,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
   </section>
 
   <!-- MODULE 2 -->
-  <section class="panel m2" id="panel-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" hidden>
+  <section class="panel m2" id="panel-diagnose" data-clarity-mask="True" role="tabpanel" aria-labelledby="tab-diagnose" hidden>
     <div class="intro">
       <h2>Applied 50 times and heard nothing?</h2>
       <p>It's usually a filter, not a verdict on you. Here's how that filter works, and how to get past it.</p>
@@ -481,7 +485,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.84rem;display:grid;gap:4px;
   </section>
 
   <!-- MODULE 3 -->
-  <section class="panel m3" id="panel-track" role="tabpanel" aria-labelledby="tab-track" hidden>
+  <section class="panel m3" id="panel-track" data-clarity-mask="True" role="tabpanel" aria-labelledby="tab-track" hidden>
     <div class="intro">
       <h2>Where have you applied?</h2>
       <p>Add every application once. We keep the dates, tell you when to follow up, and flag the ones that have gone quiet.</p>
@@ -559,6 +563,8 @@ const CFG = window.NH_CONFIG || {};
 let sb = null;
 try { if (CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase) sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey); } catch(e){ sb = null; }
 const LIVE = !!sb;
+const PAY = LIVE && CFG.payments === true;   // ₹99 checkout on when config.js says payments: true
+const PRICE = '₹99';
 
 async function hashId(v){
   const data = new TextEncoder().encode('nopehope:' + v);
@@ -624,7 +630,7 @@ function openSignup(why, then){
   pending = then || null;
   const copy = {
     scam:['You\'ve used your free check','Make a free account to keep checking job messages. It takes 20 seconds.'],
-    unlock:['Save your report first','Make a free account so your full CV report stays with you.'],
+    unlock: PAY ? ['Unlock your full report','Make a free account first, so your report stays yours. Then pay ' + PRICE + ' once for this job.'] : ['Unlock your full report','The full report is free while Nope & Hope is in beta. Make a free account to open it. It takes 20 seconds.'],
     login:['Welcome to Nope & Hope','Make a free account for unlimited scam checks and saved CV reports.'],
     report:['Sign in to report','Reports come from real accounts, so the counts stay trustworthy. It takes 20 seconds.'],
   }[why];
@@ -1117,13 +1123,64 @@ What we're looking for
 - Strong communication and stakeholder management skills
 - Understanding of labour law basics`;
 
-let unlocked = false, lastDiag = null, sample = null, lastArgs = null;
+let unlocked = false, lastDiag = null, sample = null, lastArgs = null, lastJd = '';
+let betaLogged = false, paying = false;
+if (PAY){ const hs = document.getElementById('hopeSub'); if (hs) hs.textContent = 'The hope check · free score, full report ' + PRICE; }
+const showUnlocked = msg => { unlocked = true; if (lastArgs) renderDiag(...lastArgs); if ($('#fuOut').innerHTML) writeFollowups(false); toast(msg); };
+let rzpLoad = null;
+const loadRazorpay = () => rzpLoad || (rzpLoad = new Promise((ok, no) => {
+  if (window.Razorpay) return ok();
+  const sc = document.createElement('script'); sc.src = 'https://checkout.razorpay.com/v1/checkout.js';
+  sc.onload = ok; sc.onerror = () => { rzpLoad = null; no(new Error('checkout-load')); }; document.head.appendChild(sc);
+}));
+async function useCredit(key){
+  const {data, error} = await sb.rpc('use_report_credit', {report_key: key});
+  if (error) throw error; return data === true;
+}
+async function checkout(){
+  await loadRazorpay();
+  const {data, error} = await sb.functions.invoke('razorpay', {body: {action: 'order'}});
+  if (error || !data || !data.order_id) throw error || new Error('order');
+  return new Promise((resolve, reject) => {
+    const rz = new window.Razorpay({
+      key: data.key_id, order_id: data.order_id, amount: data.amount, currency: 'INR',
+      name: 'Nope & Hope', description: 'Full CV report for one job',
+      prefill: {email: (mem.user && mem.user.contact) || ''}, theme: {color: '#E2671B'},
+      handler: async r => {
+        try {
+          const v = await sb.functions.invoke('razorpay', {body: {action: 'verify', razorpay_order_id: r.razorpay_order_id, razorpay_payment_id: r.razorpay_payment_id, razorpay_signature: r.razorpay_signature}});
+          if (v.error || !v.data || !v.data.ok) throw v.error || new Error('verify');
+          resolve(true);
+        } catch(e){ reject(e); }
+      },
+      modal: {ondismiss: () => resolve(false)}
+    });
+    rz.open();
+  });
+}
+async function payToUnlock(){
+  if (paying) return;
+  if (!lastArgs || lastArgs[2]){ toast('Check your own CV against a job ad first, then unlock the full report for that job.'); $('#cvText').focus(); return; }
+  paying = true;
+  try {
+    const key = await hashId('report|' + lastArgs[1].trim() + '|' + lastJd.trim());
+    if (await useCredit(key)) return showUnlocked('Unlocked. Here\'s your full report.');
+    const paid = await checkout();
+    if (!paid) return;
+    for (let i = 0; i < 3; i++){ if (await useCredit(key)) return showUnlocked('Payment received. Your full report is unlocked.'); await wait(1500); }
+    toast('Payment received, but the unlock is slow. Click Unlock again in a minute; you won\'t be charged twice.');
+  } catch(e){
+    toast('The payment didn\'t go through. If money left your account, click Unlock again in a minute, or write to us from the Contact page.');
+  } finally { paying = false; }
+}
 function unlockAll(){
+  if (PAY){ mem.user ? payToUnlock() : openSignup('unlock', payToUnlock); return; }
   const go = () => {
     unlocked = true;
     if (lastArgs) renderDiag(...lastArgs);
     if ($('#fuOut').innerHTML) writeFollowups(false);
-    toast('Preview: payments aren\'t live yet, so it\'s unlocked free.');
+    if (LIVE && mem.user && !betaLogged){ betaLogged = true; try { sb.from('beta_unlocks').insert({feature: 'full_cv_report'}).then(() => {}, () => {}); } catch(e){} }
+    toast('Unlocked. The full report is free while we\'re in beta.');
   };
   mem.user ? go() : openSignup('unlock', go);
 }
@@ -1156,7 +1213,7 @@ function renderDiag(d, cv, example){
             ${weakHtml}
             <div class="actions" id="aiRow" hidden><button class="btn ink small" id="aiBtn">Rewrite these with AI</button><button class="btn line small" id="aiStop" hidden>Stop</button><span class="note" id="aiNote">Uses only what your CV says. [X] marks a number for you to fill in.</span></div>
           </div>
-          ${unlocked ? '' : `<div class="lockcta"><div class="envelope"><b>${Math.max(0, d.issues.length - 2)} more fixes + bullet rewrites</b><span>Every fix, in order of impact, with your bullets rewritten.</span><button class="btn small" id="unlockBtn">Unlock full report · ₹99</button></div></div>`}
+          ${unlocked ? '' : `<div class="lockcta"><div class="envelope"><b>${Math.max(0, d.issues.length - 2)} more fixes + bullet rewrites</b><span>${PAY ? 'Every fix, in order of impact, your bullets rewritten, and the LinkedIn note and second follow-up for this job. One payment, no subscription.' : 'Every fix, in order of impact, with your bullets rewritten. Free while we\'re in beta; ₹99 later.'}</span><button class="btn small" id="unlockBtn">${PAY ? 'Unlock full report · ' + PRICE : 'Unlock full report · free during beta'}</button></div></div>`}
         </div>
       </div>
     </div>
@@ -1202,6 +1259,7 @@ $('#runDiag').onclick = async () => {
   const btn = $('#runDiag'); btn.disabled = true;
   $('#diagOut').innerHTML = '<div class="pencil"><svg viewBox="0 0 120 40" aria-hidden="true"><path d="M4 30 C 20 6, 30 34, 46 14 S 74 30, 88 12 S 110 24, 116 10" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/></svg><span class="calm">Comparing your CV with the job ad. Take a breath…</span></div>';
   await wait(1800);
+  if (PAY) unlocked = false; lastJd = jd;
   lastDiag = analyseCV(cv, jd); renderDiag(lastDiag, cv, false); btn.disabled = false;
 };
 
@@ -1250,6 +1308,7 @@ function buildFollowups(){
   ];
 }
 let fuMsgs = null;
+const fuOpen = () => unlocked && !(PAY && (!lastArgs || lastArgs[2]));  // with payments on, the example doesn't unlock real follow-ups
 function writeFollowups(fresh){
   if (fresh || !fuMsgs) fuMsgs = buildFollowups();
   const card = (m, locked) => `<div class="msg"><div class="msg-top"><b>${esc(m.title)}</b><small>${esc(m.note)}</small></div>
@@ -1258,11 +1317,11 @@ function writeFollowups(fresh){
     <div class="actions">${locked ? '' : `<button class="btn line small" data-copy="${m.key}">Copy</button>`}${m.limit ? `<span class="note count ${m.body.length > m.limit ? 'over' : ''}" data-k="${m.key}-c">${m.body.length}/${m.limit}</span>` : ''}</div></div>`;
   const [e, li, nudge] = fuMsgs;
   $('#fuOut').innerHTML = `<div class="fu-cards">${card(e, false)}</div>
-    <div class="lockwrap ${unlocked ? '' : 'locked'}" style="margin-top:14px">
-      <div class="lockcontent" style="display:grid;gap:14px"><div class="fu-cards">${card(li, !unlocked)}${card(nudge, !unlocked)}</div>
+    <div class="lockwrap ${fuOpen() ? '' : 'locked'}" style="margin-top:14px">
+      <div class="lockcontent" style="display:grid;gap:14px"><div class="fu-cards">${card(li, !fuOpen())}${card(nudge, !fuOpen())}</div>
         <div class="actions" id="fuAiRow" hidden><button class="btn ink small" id="fuAi">Make them personal with AI</button><span class="note" id="fuAiNote">Uses only your CV and the job ad. Nothing is made up.</span></div>
       </div>
-      ${unlocked ? '' : `<div class="lockcta"><div class="envelope"><b>LinkedIn note + second nudge</b><span>Included in the full report, along with every CV fix and your rewritten bullets.</span><button class="btn small" id="fuUnlock">Unlock full report · ₹99</button></div></div>`}
+      ${fuOpen() ? '' : `<div class="lockcta"><div class="envelope"><b>LinkedIn note + second nudge</b><span>Part of the full report, with every CV fix and your rewritten bullets. ${PAY ? 'One payment of ' + PRICE + ' for this job.' : 'Free while we\'re in beta.'}</span><button class="btn small" id="fuUnlock">${PAY ? 'Unlock · ' + PRICE : 'Unlock free during beta'}</button></div></div>`}
     </div>`;
   $('#fuOut').querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
     const m = fuMsgs.find(x => x.key === b.dataset.copy);
@@ -1272,7 +1331,7 @@ function writeFollowups(fresh){
   wireFuAI();
 }
 function wireFuAI(){
-  const row = $('#fuAiRow'); if (!row || !sample || !unlocked) return;
+  const row = $('#fuAiRow'); if (!row || !sample || !fuOpen()) return;
   row.hidden = false;
   const btn = $('#fuAi'), note = $('#fuAiNote');
   btn.onclick = async () => {
@@ -1541,6 +1600,7 @@ loadTracker();
 /* ---------- start ---------- */
 loadScam(0);
 $('#cvText').value = SAMPLE_CV; $('#jdText').value = SAMPLE_JD;
+if (PAY) unlocked = true;  // the example report is shown in full, so people see what they're paying for
 lastDiag = analyseCV(SAMPLE_CV, SAMPLE_JD); renderDiag(lastDiag, SAMPLE_CV, true);
 (async () => {
   try { sample = window.claude ? await window.claude.use('sample') : null; } catch(e){ sample = null; }

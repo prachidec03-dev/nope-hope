@@ -87,3 +87,16 @@ drop policy if exists "edit own applications" on public.applications;
 create policy "edit own applications" on public.applications for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 drop policy if exists "delete own applications" on public.applications;
 create policy "delete own applications" on public.applications for delete to authenticated using (user_id = auth.uid());
+
+-- 4. Beta unlocks: counts how many people open the full report while it's free
+create table if not exists public.beta_unlocks (
+  id          bigint generated always as identity primary key,
+  user_id     uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  feature     text not null check (char_length(feature) <= 40),
+  created_at  timestamptz not null default now()
+);
+alter table public.beta_unlocks enable row level security;
+drop policy if exists "signed-in users log their own unlocks" on public.beta_unlocks;
+create policy "signed-in users log their own unlocks"
+  on public.beta_unlocks for insert to authenticated
+  with check (user_id = auth.uid());
